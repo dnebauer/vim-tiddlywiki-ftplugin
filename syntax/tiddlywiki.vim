@@ -1,18 +1,17 @@
-" Vim syntax file for TiddlyWiki
-" Language: tiddlywiki
-" Last Change: 2009-07-06 Mon 10:15 PM IST
-" Maintainer: Devin Weaver <suki@tritarget.org>
-" License: http://www.apache.org/licenses/LICENSE-2.0.txt
-" Reference: http://tiddlywiki.org/wiki/TiddlyWiki_Markup
+" Vim syntax file
+" Language:    Tiddlywiki
+" Maintainer:  David Nebauer
+" Last Change: 2019 Jan 05
+" Remark:      Based on https://tiddlywiki.com/#WikiText
 
 
 """ Initial checks
-" To be compatible with Vim 5.8. See `:help 44.12`
-if version < 600
-  syntax clear
-elseif exists("b:current_syntax")
-  " Quit when a (custom) syntax file was already loaded
-  finish
+" - to be compatible with Vim 5.8. See `:help 44.12`
+if v:version < 600
+    syntax clear
+elseif exists('b:current_syntax')
+    " quit when a (custom) syntax file is already loaded
+    finish
 endif
 
 setlocal isident+=-
@@ -101,10 +100,8 @@ syn cluster twFormatting add=twStrikethrough,twHighlight,twNoFormatting,
 syn cluster twFormatting add=twCode,twCodeblockTag,twComment
 
 """ Highlighting
-
 hi def twItalic term=italic cterm=italic gui=italic
 hi def twBold term=bold cterm=bold gui=bold
-
 hi def link twUnderline Underlined
 hi def link twStrikethrough Ignore
 hi def link twHighlight Todo
