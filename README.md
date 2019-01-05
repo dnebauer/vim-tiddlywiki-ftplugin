@@ -16,7 +16,7 @@ From version 5 of TiddlyWiki each tiddler is stored in its own file, which has
 a `tid` extension. This filetype plugin defines the "tiddlywiki" filetype for
 these files and provides a syntax file for this filetype, as well as some
 useful commands and mappings (see [plugin
-help](blob/master/doc/ft-tiddlywiki-plugin.txt) for further details).
+help](doc/ft-tiddlywiki-plugin.txt) for further details).
 
 ## Changes from original project ##
 
