@@ -9,8 +9,8 @@ if exists('g:no_plugin_maps') && g:no_plugin_maps | finish | endif
 
 ""
 " @setting g:no_tiddlywiki_maps
-" Prevents loading of plugin mappings (@section(mappings)) if set to a true
-" value. (See also discussion of "g:no_plugin_maps" in @section(mappings).)
+" Prevents loading of plugin mappings if set to a true value. (See also
+" discussion of "g:no_plugin_maps" in @section(mappings).)
 
 let s:save_cpo = &cpoptions
 set cpoptions&vim
