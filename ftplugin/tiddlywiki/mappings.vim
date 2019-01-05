@@ -5,14 +5,12 @@ scriptencoding utf-8
 if exists('b:disable_tiddlywiki') && b:disable_tiddlywiki | finish | endif
 if exists('b:loaded_tiddlywiki_mappings') | finish | endif
 let b:loaded_tiddlywiki_mappings = 1
-
-""
-" @setting g:no_plugin_maps
-" Prevent loading of plugin mappings (@section(mappings)).
+if exists('g:no_plugin_maps') && g:no_plugin_maps | finish | endif
 
 ""
 " @setting g:no_tiddlywiki_maps
-" Prevent loading of plugin mappings (@section(mappings)).
+" Prevents loading of plugin mappings (@section(mappings)) if set to a true
+" value. (See also discussion of "g:no_plugin_maps" in @section(mappings).)
 
 let s:save_cpo = &cpoptions
 set cpoptions&vim
@@ -31,6 +29,10 @@ set cpoptions&vim
 " <Leader>tm
 "   * update modification timestamp
 "   * calls @function(tiddlywiki#updateModTime)
+"
+" @plugin(name) adheres to the convention that plugin mappings are not loaded
+" if either of the variables "g:no_plugin_maps" or |g:no_tiddlywiki_maps| is
+" set to a true value.
 
 " }}}1
 

@@ -37,16 +37,15 @@ Prevents ft-tiddlywiki-plugin loading if set to a true value before it would
 normally load.
 
                                                      *g:tiddlywiki_autoupdate*
-If this variable is present and set to a true value, automatic updating of the
-tiddler's modification time is enabled. For more information see the
+If this variable is set to a true value, automatic updating of the tiddler's
+modification time is enabled. For more information see the
 |tiddlywiki#updateModTime()| function and |ft-tiddlywiki-plugin-autocmds|
 section.
 
-                                                            *g:no_plugin_maps*
-Prevent loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|).
-
                                                         *g:no_tiddlywiki_maps*
-Prevent loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|).
+Prevents loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|) if set
+to a true value. (See also discussion of "g:no_plugin_maps" in
+|ft-tiddlywiki-plugin-mappings|.)
 
 ==============================================================================
 COMMANDS                                       *ft-tiddlywiki-plugin-commands*
@@ -86,6 +85,10 @@ The following mappings are provided for |Normal-mode|:
 <Leader>tm
   * update modification timestamp
   * calls |tiddlywiki#updateModTime()|
+
+ft-tiddlywiki-plugin adheres to the convention that plugin mappings are not
+loaded if either of the variables "g:no_plugin_maps" or |g:no_tiddlywiki_maps|
+is set to a true value.
 
 ==============================================================================
 AUTOCOMMANDS                                   *ft-tiddlywiki-plugin-autocmds*

@@ -31,8 +31,8 @@ set cpoptions&vim
 
 ""
 " @setting g:tiddlywiki_autoupdate
-" If this variable is present and set to a true value, automatic updating of
-" the tiddler's modification time is enabled. For more information see the
+" If this variable is set to a true value, automatic updating of the tiddler's
+" modification time is enabled. For more information see the
 " @function(tiddlywiki#updateModTime) function and @section(autocmds) section.
 
 function! s:autoupdate_mod_time()
