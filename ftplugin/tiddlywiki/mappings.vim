@@ -46,7 +46,7 @@ set cpoptions&vim
 if !hasmapto('<Plug>TWTTN')
     nmap <buffer> <unique> <LocalLeader>ti <Plug>TWTTN
 endif
-nmap <buffer> <unique> <Plug>TWTTN :call tiddlywiki#initialiseTiddler()
+nmap <buffer> <unique> <Plug>TWTTN :call tiddlywiki#initialiseTiddler()<CR>
 
 " \tm - update modification timestamp    {{{1
 
