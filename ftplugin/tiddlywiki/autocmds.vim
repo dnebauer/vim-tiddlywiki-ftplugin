@@ -14,10 +14,10 @@ set cpoptions&vim
 
 ""
 " @section Autocommands, autocmds
-" This plugin is configured to automatically update the tiddler's modification
-" time (in the metadata "modified" field) when the file is changed and saved.
-" This feature can be disabled by users with the |g:tiddlywiki_autoupdate|
-" variable.
+" @plugin(name) can be configured to automatically update the tiddler's
+" modification time (in the metadata "modified" field) when the file is
+" changed and saved. While disabled by default, it can be enabled with the
+" |g:tiddlywiki_autoupdate| variable.
 "
 " The autocmd responsible for this behaviour can be found in the
 " "tiddlywiki" autocmd group (see |autocmd-groups|) and can be viewed (see
@@ -31,9 +31,9 @@ set cpoptions&vim
 
 ""
 " @setting g:tiddlywiki_autoupdate
-" If present and set to a true value, this enable automatic updating of the
-" tiddler's modification time. For more information see
-" @function(tiddlywiki#updateModTime) and @section(autocmds).
+" If this variable is present and set to a true value, automatic updating of
+" the tiddler's modification time is enabled. For more information see the
+" @function(tiddlywiki#updateModTime) function and @section(autocmds) section.
 
 function! s:autoupdate_mod_time()
     if &modified

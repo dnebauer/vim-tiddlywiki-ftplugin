@@ -14,7 +14,8 @@ set cpoptions&vim
 
 ""
 " @section Introduction, intro
-" @order intro config features commands mappings autocmds functions
+" @order features syntax mappings autocmds
+" @stylized tiddlywiki-filetype-plugin
 " A filetype plugin for Tiddlywiki tiddlers.
 "
 " TiddlyWiki (https://tiddlywiki.com) is a non-linear notebook, or wiki. The
@@ -31,16 +32,15 @@ set cpoptions&vim
 
 ""
 " @section Features, features
-""
-" @section Features, features
-" This @plugin(name) filetype plugin defines the "tiddlywiki" filetype. A
-" syntax file is provided. Some useful @section(functions) and
-" @section(mappings) assist with tiddler metadata.
+" @plugin(name) defines the "tiddlywiki" filetype and provides
+" @section(syntax) highlighting, some useful @section(functions) and
+" @section(mappings), and an optional @section(autocmds) assist with tiddler
+" metadata.
 
 ""
 " @setting b:disable_tiddlywiki
-" Prevents the @plugin(name) ftplugin loading if set to a true value before it
-" would normally load.
+" Prevents @plugin(name) loading if set to a true value before it would
+" normally load.
 
 " }}}1
 
@@ -250,10 +250,10 @@ endfunction
 ""
 " @public
 " Updates the "modified" metadata field with the current time.
-" throws NoModified if unable to locate "modified" metadata field
-" throws CantModify if unable to modify "modified" metadata field
-" throws CantSetPos if unable to restore original cursor position
-" throws NoDate if unable to obtain system date
+" @throws NoModified if unable to locate "modified" metadata field
+" @throws CantModify if unable to modify "modified" metadata field
+" @throws CantSetPos if unable to restore original cursor position
+" @throws NoDate if unable to obtain system date
 function! tiddlywiki#updateModTime()
     " remember where we parked...
     let l:save_cursor = getcurpos()
@@ -295,7 +295,6 @@ endfunction
 " * "tags: "
 " * "title: "
 " * "type: text/vnd.tiddlywiki"
-"
 " followed by an empty line. "<TIME>" is the current time in tiddlywiki
 " format.
 function! tiddlywiki#initialiseTiddler()

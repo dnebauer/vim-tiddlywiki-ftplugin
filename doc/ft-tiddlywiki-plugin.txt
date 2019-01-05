@@ -1,0 +1,123 @@
+*ft-tiddlywiki-plugin.txt*	Filetype plugin for TiddlyWiki wikitext markup
+David Nebauer              *tiddlywiki-filetype-plugin* *ft-tiddlywiki-plugin*
+
+==============================================================================
+CONTENTS                                       *ft-tiddlywiki-plugin-contents*
+  1. Introduction.................................|ft-tiddlywiki-plugin-intro|
+  2. Configuration...............................|ft-tiddlywiki-plugin-config|
+  3. Commands..................................|ft-tiddlywiki-plugin-commands|
+  4. Features..................................|ft-tiddlywiki-plugin-features|
+  5. Syntax......................................|ft-tiddlywiki-plugin-syntax|
+  6. Mappings..................................|ft-tiddlywiki-plugin-mappings|
+  7. Autocommands..............................|ft-tiddlywiki-plugin-autocmds|
+  8. Functions................................|ft-tiddlywiki-plugin-functions|
+
+==============================================================================
+INTRODUCTION                                      *ft-tiddlywiki-plugin-intro*
+
+A filetype plugin for Tiddlywiki tiddlers.
+
+TiddlyWiki (https://tiddlywiki.com) is a non-linear notebook, or wiki. The
+basis of TiddlyWiki is capturing information into the smallest possible
+semantically meaningful units, called "tiddlers", and aggregating them in
+meaningful ways to present narrative stories.
+
+From version 5 of TiddlyWiki each tiddler is stored in its own file, which has
+a "tid" extension. While there are a variety of types of tiddler serving
+different functions, this plugin supports the basic content type of tiddler,
+consisting of metadata followed by content. The metadata is a series of
+key:value pairs, one to a line. The content is a flavour of wikitext markup
+developed for TiddlyWiki (https://tiddlywiki.com/#WikiText).
+
+==============================================================================
+CONFIGURATION                                    *ft-tiddlywiki-plugin-config*
+
+                                                        *b:disable_tiddlywiki*
+Prevents ft-tiddlywiki-plugin loading if set to a true value before it would
+normally load.
+
+                                                     *g:tiddlywiki_autoupdate*
+If this variable is present and set to a true value, automatic updating of the
+tiddler's modification time is enabled. For more information see the
+|tiddlywiki#updateModTime()| function and |ft-tiddlywiki-plugin-autocmds|
+section.
+
+                                                            *g:no_plugin_maps*
+Prevent loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|).
+
+                                                        *g:no_tiddlywiki_maps*
+Prevent loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|).
+
+==============================================================================
+COMMANDS                                       *ft-tiddlywiki-plugin-commands*
+
+:[N]TWInitialiseTiddler                                 *:TWInitialiseTiddler*
+  Calls |tiddlywiki#initialiseTiddler()| to insert metadata fields "created",
+  "modified", "tags", "title" and "type" at the head of the file.
+
+:[N]TWUpdateModificationTime                       *:TWUpdateModificationTime*
+  Calls |tiddlywiki#updateModTime()| to update the timestamp in the "modified"
+  metadata field.
+
+==============================================================================
+FEATURES                                       *ft-tiddlywiki-plugin-features*
+
+ft-tiddlywiki-plugin defines the "tiddlywiki" filetype and provides
+|ft-tiddlywiki-plugin-syntax| highlighting, some useful
+|ft-tiddlywiki-plugin-functions| and |ft-tiddlywiki-plugin-mappings|, and an
+optional |ft-tiddlywiki-plugin-autocmds| assist with tiddler metadata.
+
+==============================================================================
+SYNTAX                                           *ft-tiddlywiki-plugin-syntax*
+
+ft-tiddlywiki-plugin defines the filetype "tiddlywiki" for TiddlyWiki's
+flavour of wikitext markup. This filetype is automatically assigned to files
+with a ".tid" extension.
+
+==============================================================================
+MAPPINGS                                       *ft-tiddlywiki-plugin-mappings*
+
+The following mappings are provided for |Normal-mode|:
+
+<Leader>ti
+  * initialise tiddler file
+  * calls |tiddlywiki#initialiseTiddler()|
+
+<Leader>tm
+  * update modification timestamp
+  * calls |tiddlywiki#updateModTime()|
+
+==============================================================================
+AUTOCOMMANDS                                   *ft-tiddlywiki-plugin-autocmds*
+
+ft-tiddlywiki-plugin can be configured to automatically update the tiddler's
+modification time (in the metadata "modified" field) when the file is changed
+and saved. While disabled by default, it can be enabled with the
+|g:tiddlywiki_autoupdate| variable.
+
+The autocmd responsible for this behaviour can be found in the "tiddlywiki"
+autocmd group (see |autocmd-groups|) and can be viewed (see |autocmd-list|).
+
+==============================================================================
+FUNCTIONS                                     *ft-tiddlywiki-plugin-functions*
+
+tiddlywiki#updateModTime()                        *tiddlywiki#updateModTime()*
+  Updates the "modified" metadata field with the current time.
+  Throws ERROR(NoModified) if unable to locate "modified" metadata field
+  Throws ERROR(CantModify) if unable to modify "modified" metadata field
+  Throws ERROR(CantSetPos) if unable to restore original cursor position
+  Throws ERROR(NoDate) if unable to obtain system date
+
+tiddlywiki#initialiseTiddler()                *tiddlywiki#initialiseTiddler()*
+  Insert metadata fields at start of file. More specifically, the following
+  metadata fields are inserted:
+    * "created: <TIME>"
+    * "modified: <TIME>"
+    * "tags: "
+    * "title: "
+    * "type: text/vnd.tiddlywiki"
+  followed by an empty line. "<TIME>" is the current time in tiddlywiki
+  format.
+
+
+vim:tw=78:ts=8:ft=help:norl:

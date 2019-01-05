@@ -4,8 +4,13 @@
 " Last Change: 2019 Jan 05
 " Remark:      Based on https://tiddlywiki.com/#WikiText
 
+""
+" @section Syntax, syntax
+" @plugin(name) defines the filetype "tiddlywiki" for TiddlyWiki's flavour of
+" wikitext markup. This filetype is automatically assigned to files with a
+" ".tid" extension.
 
-""" Initial checks
+" Initial checks
 " - to be compatible with Vim 5.8. See `:help 44.12`
 if v:version < 600
     syntax clear
@@ -16,7 +21,7 @@ endif
 
 setlocal isident+=-
 
-""" Patterns
+" Patterns
 syn spell toplevel
 
 " Rules
@@ -91,7 +96,7 @@ syn match twNoFormatting /{{{.\{-}}}}/ contains=@Spell
 syn match twCode /`[^`]\+`/
 syn region twCodeblockTag start=/^```\i*/ end=/^```/ contains=@Spell
 
-""" Clusters
+" Clusters
 syn cluster twFormatting contains=twTransclude,twLink,twCamelCaseLink,
 syn cluster twFormatting add=twUrlLink,twImgLink,twTable,twBlockquote,
 syn cluster twFormatting add=twDefinitionListTerm,twDefinitionListDescription,
@@ -99,7 +104,7 @@ syn cluster twFormatting add=twHeading,twItalic,twBold,twUnderline,
 syn cluster twFormatting add=twStrikethrough,twHighlight,twNoFormatting,
 syn cluster twFormatting add=twCode,twCodeblockTag,twComment
 
-""" Highlighting
+" Highlighting
 hi def twItalic term=italic cterm=italic gui=italic
 hi def twBold term=bold cterm=bold gui=bold
 hi def link twUnderline Underlined
