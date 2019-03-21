@@ -6,6 +6,7 @@ if exists('b:disable_tiddlywiki') && b:disable_tiddlywiki | finish | endif
 if exists('b:loaded_tiddlywiki_mappings') | finish | endif
 let b:loaded_tiddlywiki_mappings = 1
 if exists('g:no_plugin_maps') && g:no_plugin_maps | finish | endif
+if exists('g:no_tiddlywiki_maps') && g:no_tiddlywiki_maps | finish | endif
 
 ""
 " @setting g:no_tiddlywiki_maps
