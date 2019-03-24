@@ -136,7 +136,7 @@ function! s:stringify(variable, ...) abort
     " have now covered all seven variable types
     else
         call s:warn('invalid variable type')
-        throw 'ERROR(BadVarType) Invalid variable type'
+        throw 'ERROR(BadVarType): Invalid variable type'
     endif
 endfunction
 
@@ -257,13 +257,13 @@ function! s:tw_time()
             call extend(l:err, ['Error message:'] + l:datetime)
         endif
         call s:warn(l:err)
-        throw 'ERROR(NoDate) Unable to obtain system date'
+        throw 'ERROR(NoDate): Unable to obtain system date'
     endif
     let l:tw_time = l:datetime[0]
     let l:dt_regex = '^\d\{14}$'
     if l:tw_time !~ l:dt_regex
         call s:warn("Invalid date string '" . l:tw_time . "'")
-        throw 'ERROR(BadDate) System datetime is invalid'
+        throw 'ERROR(BadDate): System datetime is invalid'
     endif
     " add on arbitrary millisecond value
     let l:tw_time .= '000'
@@ -289,26 +289,26 @@ function! tiddlywiki#updateModTime()
     let l:line = search('^\s*modified:\s', 'w')
     if l:line == 0
         call s:warn('Cannot locate "modified" metadata field')
-        throw 'ERROR(NoModified) Unable to locate "modified" metadata field'
+        throw 'ERROR(NoModified): Unable to locate "modified" metadata field'
     endif
     " replace line
     try
         let l:tw_time = s:tw_time()
     catch
         call s:error(s:exception_error(v:exception))
-        throw 'ERROR(NoDate) Unable to obtain system date'
+        throw 'ERROR(NoDate): Unable to obtain system date'
     endtry
     let l:new_mod = 'modified: ' . s:tw_time()
     let l:retval = setline(l:line, l:new_mod)
     if l:retval == 1
         call s:warn('Unable to modify "modified" metadata field')
-        throw 'ERROR(CantModify) Unable to modify "modified" metadata field'
+        throw 'ERROR(CantModify): Unable to modify "modified" metadata field'
     endif
     " return to original location
     let l:retval = setpos('.', l:save_cursor)
     if l:retval == -1
         call s:warn('Unable to restore original cursor position')
-        throw 'ERROR(CantSetPos) Unable to restore original cursor position'
+        throw 'ERROR(CantSetPos): Unable to restore original cursor position'
     endif
 endfunction
 
@@ -373,10 +373,12 @@ endfunction
 " occurs before the field name arguments are exhausted, remaining field names
 " are ignored.
 " @throws CantEdit if unable to open tiddler file for editing
+" @throws NoCreated if unable to set created date
 " @throws DeleteFail if error occurs during file deletion
 " @throws NoBoundary if no metadata/content boundary located
 " @throws NoContent if no content/text in tiddler
 " @throws NoFilename if no output filename entered by user
+" @throws NoModified if unable to set modified date
 " @throws WriteFail if error occurs during file write
 function! tiddlywiki#convertTidToDivTiddler(...)
     " define error messages    {{{2
@@ -441,6 +443,26 @@ function! tiddlywiki#convertTidToDivTiddler(...)
             let l:fields[l:field_name] = l:field_value
         endif
     endfor
+    " - add created/modified date if absent and creator/modifier set
+    if has_key(l:fields, 'creator') && !empty(l:fields.creator)
+                \ && !has_key(l:fields, 'created')
+        try
+            let l:fields.creator = s:tw_time()
+        catch
+            call s:error(s:exception_error(v:exception))
+            throw 'ERROR(NoCreated): Unable to set created date'
+        endtry
+    endif
+    if has_key(l:fields, 'modifier') && !empty(l:fields.modifier)
+                \ && !has_key(l:fields, 'modified')
+        try
+            let l:fields.modifier = s:tw_time()
+        catch
+            call s:error(s:exception_error(v:exception))
+            throw 'ERROR(NoModified): Unable to set modified date'
+        endtry
+    endif
+    " - build attributes string and add to div element
     let l:attributes = ''
     for [l:field_name, l:field_value] in items(l:fields)
         let l:attributes .= ' ' . l:field_name . '="' . l:field_value . '"'
