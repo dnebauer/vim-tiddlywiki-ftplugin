@@ -376,12 +376,12 @@ endfunction
 " occurs before the field name arguments are exhausted, remaining field names
 " are ignored.
 "
-" Note that field values cannot include double quotes. This is because each
-" field attribute becomes a html tag attribute which is enclosed in double
-" quotes, and if the attribute value contains double quotes it causes
-" tiddlywiki's import routine to fail unpredictably. For this reason any
-" double quotes in metadata field values are silently converted to single
-" quotes.
+" Because each field value becomes a html attribute value, some characters can
+" confuse tiddlywiki's import parser. These characters include double-quotes,
+" less-than signs and greater-than signs, which for that reason are silently
+" replaced with single quotes, full width less-than signs (unicode code point
+" FF1C) and full-width greater-than signs (unicode code point FF1E),
+" respectively, during conversion.
 " @throws CantEdit if unable to open tiddler file for editing
 " @throws NoCreated if unable to set created date
 " @throws DeleteFail if error occurs during file deletion
@@ -469,12 +469,17 @@ function! tiddlywiki#convertTidToDivTiddler(...)
         endtry
     endif
     " - build attributes string and add to div element
-    "   . cannot have couble quotes in field values (because as div attributes
-    "     are enclosed in double quotes
     let l:attributes = ''
+    "   . these chars confuse the tiddlywiki import parser: '<', '>', and '"'
     for [l:field_name, l:field_value] in items(l:fields)
-        if match(l:field_value, '"') > -1
+        if match(l:field_value, '"') > -1  " replace with single quote
             let l:field_value = substitute(l:field_value, '"', '''', 'g')
+        endif
+        if match(l:field_value, '<') > -1  " replace with unicode ff1c
+            let l:field_value = substitute(l:field_value, '<', '＜', 'g')
+        endif
+        if match(l:field_value, '>') > -1  " replace with unicode ff1e
+            let l:field_value = substitute(l:field_value, '>', '＞', 'g')
         endif
         let l:attributes .= ' ' . l:field_name . '="' . l:field_value . '"'
     endfor

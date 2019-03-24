@@ -177,12 +177,12 @@ tiddlywiki#convertTidToDivTiddler([field])
   occurs before the field name arguments are exhausted, remaining field names
   are ignored.
 
-  Note that field values cannot include double quotes. This is because each
-  field attribute becomes a html tag attribute which is enclosed in double
-  quotes, and if the attribute value contains double quotes it causes
-  tiddlywiki's import routine to fail unpredictably. For this reason any
-  double quotes in metadata field values are silently converted to single
-  quotes.
+  Because each field value becomes a html attribute value, some characters can
+  confuse tiddlywiki's import parser. These characters include double-quotes,
+  less-than signs and greater-than signs, which for that reason are silently
+  replaced with single quotes, full width less-than signs (unicode code point
+  FF1C) and full-width greater-than signs (unicode code point FF1E),
+  respectively, during conversion.
   Throws ERROR(CantEdit) if unable to open tiddler file for editing
   Throws ERROR(NoCreated) if unable to set created date
   Throws ERROR(DeleteFail) if error occurs during file deletion
