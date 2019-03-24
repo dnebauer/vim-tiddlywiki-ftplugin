@@ -33,18 +33,46 @@ set cpoptions&vim
 ""
 " @section Features, features
 " @plugin(name) defines the "tiddlywiki" filetype and provides
-" @section(syntax) highlighting, some useful @section(functions) and
-" @section(mappings), and an optional @section(autocmds) assist with tiddler
-" metadata.
+" @section(syntax) highlighting, some useful @section(functions),
+" @section(mappings), @section(commands) and an optional @section(autocmds)
+" assist with tiddler metadata.
 
 ""
 " @setting b:disable_tiddlywiki
 " Prevents @plugin(name) loading if set to a true value before it would
 " normally load.
 
+""
+" @setting g:default_tiddler_tags
+" Default tag names to be added when converting a "tid" file to a "tiddler"
+" file. Tag names specified in tiddler metadata are added to these tag names.
+" For more details see the @command(TWTidToTiddler) command and
+" @function(tiddlywiki#convertTidToTiddler) function.
+
+""
+" @setting g:default_tiddler_creator
+" Default creator name to be added when converting a "tid" file to a "tiddler"
+" file. Any creator name specified in tiddler metadata overrides the tag name
+" set in this variable. For more details see the @command(TWTidToTiddler)
+" command and @function(tiddlywiki#convertTidToTiddler) function.
+
 " }}}1
 
 " Script functions
+
+" s:confirm(question)    {{{1
+
+""
+" @private
+" Asks user a {question} to be answered with a 'y' or 'n'.
+function! s:confirm(question) abort
+    echohl Question
+    echomsg a:question
+    echohl None
+    let l:char = nr2char(getchar())
+    echon l:char
+    return (l:char ==? 'y')
+endfunction
 
 " s:stringify(variable[, quote])    {{{1
 
@@ -176,7 +204,7 @@ endfunction
 " s:warn(msg)    {{{1
 
 ""
-" @public
+" @private
 " Display warning {message}. A |String| {message} is converted to a
 " single-element |List|. Any other type of non-|List| value is stringified by
 " @function(s:stringify) and converted to a single-element |List|. If a |List|
@@ -305,6 +333,170 @@ function! tiddlywiki#initialiseTiddler()
     call append(3, 'title: ')
     call append(4, 'type: text/vnd.tiddlywiki')
     call append(5, '')
+endfunction
+
+" tiddlywiki#convertTidToTiddler([field1[, field2[, ...]]])    {{{1
+
+""
+" @public
+" Converts the contents of the current buffer, assumed to be in the syle of a
+" "tid" file, to the style of a "tiddler" file, writes the "tiddler" file to
+" the current directory and opens it in a new buffer. The "tid" and "tiddler"
+" file styles are described in the "TiddlerFiles" tiddler at
+" https://tiddlywiki.com.)
+"
+" If the current buffer is associated with a file the output "tiddler" is
+" given the same base name. If the current buffer is not associated with a
+" file the user is prompted to enter one. The output file is given a "tiddler"
+" extension.
+"
+" The "tid" content is assumed to be structured with at least one metadata
+" line at the top of the document separated from the tiddler content/text by a
+" blank line. Each metadata lines looks like "field: description". The
+" content of the tags field is space-separated tag names; tag names containing
+" spaces should be enclosed by doubled square brackets, e.g., "[[tag name]]".
+" Default tag names set using the @setting(g:default_tiddler_tags) setting are added
+" to any tag names defined in tiddler metadata. A default creator name can be
+" set using @setting(g:default_tiddler_creator), but this is overridden by a
+" creator set in tiddler metadata. If, for some reason, there the same field
+" is defined multiple times in metadata, the following occurs:
+" * for the "tags" field, all field valules are concatenated
+" * for other fields, the last field value overrides all others.
+"
+" There is an optional pre-processing step in which lines at the top of the
+" file can have field names prepended to them. This is triggered by passing
+" [field] names to the function as arguments. Consider, for example, the
+" function invocation:>
+" "call tiddlywiki#convertTidToTiddler('title', 'tags')"
+" <This results in "title: " being prepended to the first line in the file and
+" "tags: " being prepended to the second line in the file. If a blank line
+" occurs before the field name arguments are exhausted, remaining field names
+" are ignored.
+" @throws CantEdit if unable to open tiddler file for editing
+" @throws DeleteFail if error occurs during file deletion
+" @throws NoBoundary if no metadata/content boundary located
+" @throws NoContent if no content/text in tiddler
+" @throws NoFilename if no output filename entered by user
+" @throws WriteFail if error occurs during file write
+function! tiddlywiki#convertTidToTiddler(...)
+    " define error messages    {{{2
+    let l:ERROR_DeleteFail
+                \ = 'ERROR(DeleteFail): Vim reports file deletion failed'
+    let l:ERROR_NoBoundary
+                \ = 'ERROR(NoBoundary): No metadata/content boundary located'
+    let l:ERROR_NoContent = 'ERROR(NoContent): No content/text in tiddler'
+    let l:ERROR_NoFilename = 'ERROR(NoFilename): No output filename provided'
+    let l:ERROR_WriteFail = 'ERROR(WriteFail): Vim reports file write failed'
+    " slurp buffer content into list    {{{2
+    let l:tid = getline(1, '$')
+    " add field names to metadata (optional)    {{{2
+    let l:tid_index = 0
+    for l:field in a:000
+        let l:line = get(l:tid, l:tid_index, '')
+        if empty(l:line) | break | endif |  " ran out of tiddler lines
+        let l:line = l:field . ': ' . l:line
+        let l:tid[l:tid_index] = l:line
+        let l:tid_index += 1
+    endfor
+    " prepare to process tiddler    {{{2
+    " - remove leading empty rows
+    let l:leading_blanks = -1
+    for l:line in l:tid
+        if   l:line =~# '^\s*$' | let l:leading_blanks +=1
+        else                    | break
+        endif
+    endfor
+    if l:leading_blanks >=0
+        call remove(l:tid, 0, l:leading_blanks)
+    endif
+    " - locate boundary line between metadata and content/text
+    let l:boundary_index = 0
+    for l:line in l:tid
+        if l:line =~# '^\s*$' | break | endif
+        let l:boundary_index += 1
+    endfor
+    if l:boundary_index >= len(l:tid) | throw l:ERROR_NoBoundary | endif
+    let l:metadata_end = l:boundary_index - 1
+    let l:content_begin = l:boundary_index + 1
+    " - prepare variables
+    let l:tiddler = []
+    let l:fields = {}
+    if exists('g:default_tiddler_tags') && !empty(g:default_tiddler_tags)
+        let l:fields['tags'] = g:default_tiddler_tags
+    endif
+    if exists('g:default_tiddler_creator') && !empty(g:default_tiddler_creator)
+        let l:fields['creator'] = g:default_tiddler_creator
+    endif
+    " process tiddler metadata    {{{2
+    for l:line in l:tid[0 : l:metadata_end]
+        let l:field_name = split(l:line, ':')[0]
+        let l:match_expr = l:field_name . ':\s*'
+        let l:value_start = matchend(l:line, l:match_expr)
+        let l:field_value = strpart(l:line, l:value_start)
+        " the 'tags' field is handled as a special case
+        if l:field_name =~# '^tags$'
+            let l:tags = l:fields['tags'] . ' ' . l:field_value
+            let l:fields['tags'] = l:tags
+        else
+            let l:fields[l:field_name] = l:field_value
+        endif
+    endfor
+    let l:attributes = ''
+    for [l:field_name, l:field_value] in items(l:fields)
+        let l:attributes .= ' ' . l:field_name . '="' . l:field_value . '"'
+    endfor
+    let l:div = '<div' . l:attributes . '>'
+    call add(l:tiddler, l:div)
+    " process tiddler content/text    {{{2
+    let l:content = l:tid[l:content_begin :]
+    if len(l:content) == 0 | throw l:ERROR_NoContent | endif
+    let l:content[0] = '<pre>' . l:content[0]
+    let l:content[-1] = l:content[-1] . '</pre>'
+    call expand(l:tiddler, l:content)
+    call add(l:tiddler, '</div>')
+    " get output filename    {{{2
+    if empty(bufname('%'))  " no file associated with buffer
+        echohl Question
+        let l:tiddler_fname
+                    \ = input('Enter output file base name: ', '', 'file')
+        echohl None
+        if empty(l:tiddler_fname) | throw l:ERROR_NoFilename | endif
+        if fnamemodify(l:tiddler_fname, ':e') !~# '^tiddler$'
+            let l:tiddler_fname .= '.tiddler'
+        endif
+    else  " file associated with buffer
+        let l:bufname = bufname('%')
+        if fnamemodify(l:bufname, ':e') =~# '^tid$'
+            let l:tiddler_base = fnamemodify(l:bufname, ':r')
+        else
+            let l:tiddler_base = l:bufname
+        endif
+        let l:tiddler_fname = l:tiddler_base . '.tiddler'
+    endif
+    " handle if output file already exists    {{{2
+    if !empty(glob(l:tiddler_fname))
+        call s:warn('Output file "' . l:tiddler_fname . '" already exists')
+        if s:confirm('Overwrite it? [y/N] ')
+            try   | let l:delete = delete(l:tiddler_fname)
+            catch | throw 'ERROR(DeleteFail): '
+                        \ . s:exception_error(v:exception)
+            endtry
+            if l:delete == -1 | throw l:ERROR_DeleteFail | endif
+        else
+            echo 'Aborting'
+        endif
+    endif
+    " write output file    {{{2
+    try   | let l:write = writefile(l:tiddler, l:tiddler_fname, 's')
+    catch | throw 'ERROR(WriteFail): ' . s:exception_error(v:exception)
+    endtry
+    if l:write == -1 | throw l:ERROR_WriteFail | endif
+    " open output file in new buffer    {{{2
+    " - update to prevent unsaved changes interfering with edit command
+    update
+    try   | execute 'edit!' l:tiddler_fname
+    catch | throw 'ERROR(CantEdit): ' . s:exception_error(v:exception)
+    endtry    " }}}2
 endfunction
 " }}}1
 

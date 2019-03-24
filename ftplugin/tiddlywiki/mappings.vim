@@ -32,8 +32,8 @@ set cpoptions&vim
 "   * calls @function(tiddlywiki#updateModTime)
 "
 " @plugin(name) adheres to the convention that plugin mappings are not loaded
-" if either of the variables "g:no_plugin_maps" or |g:no_tiddlywiki_maps| is
-" set to a true value.
+" if either of the variables "g:no_plugin_maps" or
+" @setting(g:no_tiddlywiki_maps) is set to a true value.
 
 " }}}1
 
