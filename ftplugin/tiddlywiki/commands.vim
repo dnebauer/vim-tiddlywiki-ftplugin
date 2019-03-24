@@ -37,6 +37,20 @@ command -buffer TWInitialiseTiddler call tiddlywiki#initialiseTiddler()
 function! s:completeTiddlerField(arg, line, pos)
     let l:args = ['title', 'tags', 'creator', 'created',
                 \ 'modifier', 'modified']
+    " find any args already in cmdline
+    let l:cmdline_parts = split(a:line)
+    let l:args_for_removal = []
+    for l:part in l:cmdline_parts
+        if count(l:args, l:part)
+            call add(l:args_for_removal, l:part)
+        endif
+    endfor
+    " remove those args from possible return list
+    for l:arg in l:args_for_removal
+        let l:arg_index = index(l:args, l:arg)
+        call remove(l:args, l:arg_index)
+    endfor
+    " return possible matches among remaining args
     return filter(l:args, {idx, val -> val =~ a:arg})
 endfunction
 " }}}2
