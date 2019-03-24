@@ -36,6 +36,18 @@ CONFIGURATION                                    *ft-tiddlywiki-plugin-config*
 Prevents ft-tiddlywiki-plugin loading if set to a true value before it would
 normally load.
 
+                                                      *g:default_tiddler_tags*
+Default tag names to be added when converting a "tid" file to a "tiddler"
+file. Tag names specified in tiddler metadata are added to these tag names.
+For more details see the |:TWTidToTiddler| command and
+|tiddlywiki#convertTidToDivTiddler()| function.
+
+                                                   *g:default_tiddler_creator*
+Default creator name to be added when converting a "tid" file to a "tiddler"
+file. Any creator name specified in tiddler metadata overrides the tag name
+set in this variable. For more details see the |:TWTidToTiddler| command and
+|tiddlywiki#convertTidToDivTiddler()| function.
+
                                                      *g:tiddlywiki_autoupdate*
 If this variable is set to a true value, automatic updating of the tiddler's
 modification time is enabled. For more information see the
@@ -43,9 +55,8 @@ modification time is enabled. For more information see the
 section.
 
                                                         *g:no_tiddlywiki_maps*
-Prevents loading of plugin mappings (|ft-tiddlywiki-plugin-mappings|) if set
-to a true value. (See also discussion of "g:no_plugin_maps" in
-|ft-tiddlywiki-plugin-mappings|.)
+Prevents loading of plugin mappings if set to a true value. (See also
+discussion of "g:no_plugin_maps" in |ft-tiddlywiki-plugin-mappings|.)
 
 ==============================================================================
 COMMANDS                                       *ft-tiddlywiki-plugin-commands*
@@ -53,6 +64,11 @@ COMMANDS                                       *ft-tiddlywiki-plugin-commands*
 :[N]TWInitialiseTiddler                                 *:TWInitialiseTiddler*
   Calls |tiddlywiki#initialiseTiddler()| to insert metadata fields "created",
   "modified", "tags", "title" and "type" at the head of the file.
+
+:[N]TWConvertTidToDivTiddler [field]               *:TWConvertTidToDivTiddler*
+  Calls |tiddlywiki#convertTidToDivTiddler()| to convert a "tid" style file to
+  a "tiddler" style file and then open it. Accepts optional metadata [field]
+  names as arguments.
 
 :[N]TWUpdateModificationTime                       *:TWUpdateModificationTime*
   Calls |tiddlywiki#updateModTime()| to update the timestamp in the "modified"
@@ -63,8 +79,9 @@ FEATURES                                       *ft-tiddlywiki-plugin-features*
 
 ft-tiddlywiki-plugin defines the "tiddlywiki" filetype and provides
 |ft-tiddlywiki-plugin-syntax| highlighting, some useful
-|ft-tiddlywiki-plugin-functions| and |ft-tiddlywiki-plugin-mappings|, and an
-optional |ft-tiddlywiki-plugin-autocmds| assist with tiddler metadata.
+|ft-tiddlywiki-plugin-functions|, |ft-tiddlywiki-plugin-mappings|,
+|ft-tiddlywiki-plugin-commands| and an optional
+|ft-tiddlywiki-plugin-autocmds| assist with tiddler metadata.
 
 ==============================================================================
 SYNTAX                                           *ft-tiddlywiki-plugin-syntax*
@@ -121,6 +138,58 @@ tiddlywiki#initialiseTiddler()                *tiddlywiki#initialiseTiddler()*
     * "type: text/vnd.tiddlywiki"
   followed by an empty line. "<TIME>" is the current time in tiddlywiki
   format.
+
+tiddlywiki#convertTidToDivTiddler([field])
+                                         *tiddlywiki#convertTidToDivTiddler()*
+  Converts the contents of the current buffer, assumed to be in the syle of a
+  "tid" file, to the style of a "tiddler" file, writes the "tiddler" file to
+  the current directory and opens it in a new buffer. The "tid" and "tiddler"
+  file styles are described in the "TiddlerFiles" tiddler at
+  https://tiddlywiki.com.)
+
+  If the current buffer is associated with a file the output "tiddler" is
+  given the same base name. If the current buffer is not associated with a
+  file the user is prompted to enter one. The output file is given a "tiddler"
+  extension.
+
+  The "tid" content is assumed to be structured with at least one metadata
+  line at the top of the document separated from the tiddler content/text by a
+  blank line. Each metadata lines looks like "field: description". The content
+  of the tags field is space-separated tag names; tag names containing spaces
+  should be enclosed by doubled square brackets, e.g., "[[tag name]]". Default
+  tag names set using the |g:default_tiddler_tags| setting are added to any
+  tag names defined in tiddler metadata. A default creator name can be set
+  using |g:default_tiddler_creator|, but this is overridden by a creator set
+  in tiddler metadata. If, for some reason, there the same field is defined
+  multiple times in metadata, the following occurs: * for the "tags" field,
+  all field valules are concatenated * for other fields, the last field value
+  overrides all others.
+
+  There is an optional pre-processing step in which lines at the top of the
+  file can have field names prepended to them. This is triggered by passing
+  [field] names to the function as arguments. Consider, for example, the
+  function invocation:
+>
+<
+  "call tiddlywiki#convertTidToDivTiddler('title', 'tags')" < This results in
+  "title: " being prepended to the first line in the file and "tags: " being
+  prepended to the second line in the file. If a blank line occurs before the
+  field name arguments are exhausted, remaining field names are ignored.
+
+  Note that field values cannot include double quotes. This is because each
+  field attribute becomes a html tag attribute which is enclosed in double
+  quotes, and if the attribute value contains double quotes it causes
+  tiddlywiki's import routine to fail unpredictably. For this reason any
+  double quotes in metadata field values are silently converted to single
+  quotes.
+  Throws ERROR(CantEdit) if unable to open tiddler file for editing
+  Throws ERROR(NoCreated) if unable to set created date
+  Throws ERROR(DeleteFail) if error occurs during file deletion
+  Throws ERROR(NoBoundary) if no metadata/content boundary located
+  Throws ERROR(NoContent) if no content/text in tiddler
+  Throws ERROR(NoFilename) if no output filename entered by user
+  Throws ERROR(NoModified) if unable to set modified date
+  Throws ERROR(WriteFail) if error occurs during file write
 
 
 vim:tw=78:ts=8:ft=help:norl:

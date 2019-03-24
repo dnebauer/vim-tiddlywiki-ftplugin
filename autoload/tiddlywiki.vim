@@ -352,26 +352,35 @@ endfunction
 "
 " The "tid" content is assumed to be structured with at least one metadata
 " line at the top of the document separated from the tiddler content/text by a
-" blank line. Each metadata lines looks like "field: description". The
-" content of the tags field is space-separated tag names; tag names containing
-" spaces should be enclosed by doubled square brackets, e.g., "[[tag name]]".
-" Default tag names set using the @setting(g:default_tiddler_tags) setting are added
-" to any tag names defined in tiddler metadata. A default creator name can be
-" set using @setting(g:default_tiddler_creator), but this is overridden by a
-" creator set in tiddler metadata. If, for some reason, there the same field
-" is defined multiple times in metadata, the following occurs:
-" * for the "tags" field, all field valules are concatenated
-" * for other fields, the last field value overrides all others.
+" blank line. Each metadata lines looks like "field: description". The content
+" of the tags field is space-separated tag names; tag names containing spaces
+" should be enclosed by doubled square brackets, e.g., "[[tag name]]".
+" Default tag names set using the @setting(g:default_tiddler_tags) setting are
+" added to any tag names defined in tiddler metadata. A default creator name
+" can be set using @setting(g:default_tiddler_creator), but this is overridden
+" by a creator set in tiddler metadata. If, for some reason, there the same
+" field is defined multiple times in metadata, the following occurs: * for the
+" "tags" field, all field valules are concatenated * for other fields, the
+" last field value overrides all others.
 "
 " There is an optional pre-processing step in which lines at the top of the
 " file can have field names prepended to them. This is triggered by passing
 " [field] names to the function as arguments. Consider, for example, the
-" function invocation:>
+" function invocation:
+" >
 " "call tiddlywiki#convertTidToDivTiddler('title', 'tags')"
-" <This results in "title: " being prepended to the first line in the file and
+" <
+" This results in "title: " being prepended to the first line in the file and
 " "tags: " being prepended to the second line in the file. If a blank line
 " occurs before the field name arguments are exhausted, remaining field names
 " are ignored.
+"
+" Note that field values cannot include double quotes. This is because each
+" field attribute becomes a html tag attribute which is enclosed in double
+" quotes, and if the attribute value contains double quotes it causes
+" tiddlywiki's import routine to fail unpredictably. For this reason any
+" double quotes in metadata field values are silently converted to single
+" quotes.
 " @throws CantEdit if unable to open tiddler file for editing
 " @throws NoCreated if unable to set created date
 " @throws DeleteFail if error occurs during file deletion
