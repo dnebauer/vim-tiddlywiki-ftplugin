@@ -57,8 +57,8 @@ endfunction
 
 ""
 " Calls @function(tiddlywiki#convertTidToDivTiddler) to convert a "tid" style
-" file to a "tiddler" style file and then open it. Accepts optional metadata
-" [field] names as arguments.
+" file to a "div.tiddler" style file and then open it. Accepts optional
+" metadata [field] names as arguments.
 command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
             \ TWConvertTidToDivTiddler
             \ call tiddlywiki#convertTidToDivTiddler(<f-args>)

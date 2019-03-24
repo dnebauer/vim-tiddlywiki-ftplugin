@@ -1,5 +1,5 @@
 " Vim ftplugin for tiddlywiki tiddlers
-" Last change: 2019 Jan 5
+" Last change: 2019 Mar 24
 " Maintainer: David Nebauer
 " License: http://www.apache.org/licenses/LICENSE-2.0.txt
 
@@ -44,17 +44,18 @@ set cpoptions&vim
 
 ""
 " @setting g:default_tiddler_tags
-" Default tag names to be added when converting a "tid" file to a "tiddler"
-" file. Tag names specified in tiddler metadata are added to these tag names.
-" For more details see the @command(TWTidToTiddler) command and
-" @function(tiddlywiki#convertTidToDivTiddler) function.
+" Default tag names to be added when converting a "tid" file to a
+" "div.tiddler" file. Tag names specified in tiddler metadata are added to
+" these tag names.  For more details see the @command(TWTidToTiddler) command
+" and @function(tiddlywiki#convertTidToDivTiddler) function.
 
 ""
 " @setting g:default_tiddler_creator
-" Default creator name to be added when converting a "tid" file to a "tiddler"
-" file. Any creator name specified in tiddler metadata overrides the tag name
-" set in this variable. For more details see the @command(TWTidToTiddler)
-" command and @function(tiddlywiki#convertTidToDivTiddler) function.
+" Default creator name to be added when converting a "tid" file to a
+" "div.tiddler" file. Any creator name specified in tiddler metadata overrides
+" the tag name set in this variable. For more details see the
+" @command(TWTidToTiddler) command and
+" @function(tiddlywiki#convertTidToDivTiddler) function.
 
 " }}}1
 
@@ -340,15 +341,15 @@ endfunction
 ""
 " @public
 " Converts the contents of the current buffer, assumed to be in the syle of a
-" "tid" file, to the style of a "tiddler" file, writes the "tiddler" file to
-" the current directory and opens it in a new buffer. The "tid" and "tiddler"
-" file styles are described in the "TiddlerFiles" tiddler at
+" "tid" file, to the style of a "div.tiddler" file, writes the "div.tiddler"
+" file to the current directory and opens it in a new buffer. The "tid" and
+" "div.tiddler" file styles are described in the "TiddlerFiles" tiddler at
 " https://tiddlywiki.com.)
 "
-" If the current buffer is associated with a file the output "tiddler" is
-" given the same base name. If the current buffer is not associated with a
-" file the user is prompted to enter one. The output file is given a "tiddler"
-" extension.
+" If the current buffer is associated with a file the output "div.tiddler"
+" file is given the same base name. If the current buffer is not associated
+" with a file the user is prompted to enter one. The output file is given a
+" "tiddler" extension.
 "
 " The "tid" content is assumed to be structured with at least one metadata
 " line at the top of the document separated from the tiddler content/text by a
