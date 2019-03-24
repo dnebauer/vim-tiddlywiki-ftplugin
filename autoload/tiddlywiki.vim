@@ -459,8 +459,13 @@ function! tiddlywiki#convertTidToDivTiddler(...)
         endtry
     endif
     " - build attributes string and add to div element
+    "   . cannot have couble quotes in field values (because as div attributes
+    "     are enclosed in double quotes
     let l:attributes = ''
     for [l:field_name, l:field_value] in items(l:fields)
+        if match(l:field_value, '"') > -1
+            let l:field_value = substitute(l:field_value, '"', '''', 'g')
+        endif
         let l:attributes .= ' ' . l:field_name . '="' . l:field_value . '"'
     endfor
     let l:div = '<div' . l:attributes . '>'
