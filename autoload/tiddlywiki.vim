@@ -484,6 +484,7 @@ function! tiddlywiki#convertTidToTiddler(...)
             if l:delete == -1 | throw l:ERROR_DeleteFail | endif
         else
             echo 'Aborting'
+            return
         endif
     endif
     " write output file    {{{2
