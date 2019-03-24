@@ -34,7 +34,7 @@ set cpoptions&vim
 " @section Features, features
 " @plugin(name) defines the "tiddlywiki" filetype and provides
 " @section(syntax) highlighting, some useful @section(functions),
-" @section(mappings), @section(commands) and an optional @section(autocmds)
+" @section(mappings), @section(commands) and optional @section(autocmds)
 " assist with tiddler metadata.
 
 ""
@@ -369,7 +369,7 @@ endfunction
 " [field] names to the function as arguments. Consider, for example, the
 " function invocation:
 " >
-" "call tiddlywiki#convertTidToDivTiddler('title', 'tags')"
+"     call tiddlywiki#convertTidToDivTiddler('title', 'tags')
 " <
 " This results in "title: " being prepended to the first line in the file and
 " "tags: " being prepended to the second line in the file. If a blank line
