@@ -80,8 +80,8 @@ FEATURES                                       *ft-tiddlywiki-plugin-features*
 ft-tiddlywiki-plugin defines the "tiddlywiki" filetype and provides
 |ft-tiddlywiki-plugin-syntax| highlighting, some useful
 |ft-tiddlywiki-plugin-functions|, |ft-tiddlywiki-plugin-mappings|,
-|ft-tiddlywiki-plugin-commands| and an optional
-|ft-tiddlywiki-plugin-autocmds| assist with tiddler metadata.
+|ft-tiddlywiki-plugin-commands| and optional |ft-tiddlywiki-plugin-autocmds|
+assist with tiddler metadata.
 
 ==============================================================================
 SYNTAX                                           *ft-tiddlywiki-plugin-syntax*
@@ -170,11 +170,12 @@ tiddlywiki#convertTidToDivTiddler([field])
   [field] names to the function as arguments. Consider, for example, the
   function invocation:
 >
+      call tiddlywiki#convertTidToDivTiddler('title', 'tags')
 <
-  "call tiddlywiki#convertTidToDivTiddler('title', 'tags')" < This results in
-  "title: " being prepended to the first line in the file and "tags: " being
-  prepended to the second line in the file. If a blank line occurs before the
-  field name arguments are exhausted, remaining field names are ignored.
+  This results in "title: " being prepended to the first line in the file and
+  "tags: " being prepended to the second line in the file. If a blank line
+  occurs before the field name arguments are exhausted, remaining field names
+  are ignored.
 
   Note that field values cannot include double quotes. This is because each
   field attribute becomes a html tag attribute which is enclosed in double
