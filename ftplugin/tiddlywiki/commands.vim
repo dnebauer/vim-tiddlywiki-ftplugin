@@ -19,7 +19,7 @@ set cpoptions&vim
 " "created", "modified", "tags", "title" and "type" at the head of the file.
 command -buffer TWInitialiseTiddler call tiddlywiki#initialiseTiddler()
 
-" TWConvertTidToTiddler    - convert tid style file to tiddler    {{{1
+" TWConvertTidToDivTiddler - convert tid style file to tiddler    {{{1
 
 " s:completeTiddlerField(arg, line, pos)    {{{2
 
@@ -42,12 +42,12 @@ endfunction
 " }}}2
 
 ""
-" Calls @function(tiddlywiki#convertTidToTiddler) to convert a "tid" style
+" Calls @function(tiddlywiki#convertTidToDivTiddler) to convert a "tid" style
 " file to a "tiddler" style file and then open it. Accepts optional metadata
 " [field] names as arguments.
 command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
-            \ TWConvertTidToTiddler
-            \ call tiddlywiki#convertTidToTiddler(<f-args>)
+            \ TWConvertTidToDivTiddler
+            \ call tiddlywiki#convertTidToDivTiddler(<f-args>)
 
 " TWUpdateModificationTime - update modification timestamp    {{{1
 

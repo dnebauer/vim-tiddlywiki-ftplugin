@@ -47,14 +47,14 @@ set cpoptions&vim
 " Default tag names to be added when converting a "tid" file to a "tiddler"
 " file. Tag names specified in tiddler metadata are added to these tag names.
 " For more details see the @command(TWTidToTiddler) command and
-" @function(tiddlywiki#convertTidToTiddler) function.
+" @function(tiddlywiki#convertTidToDivTiddler) function.
 
 ""
 " @setting g:default_tiddler_creator
 " Default creator name to be added when converting a "tid" file to a "tiddler"
 " file. Any creator name specified in tiddler metadata overrides the tag name
 " set in this variable. For more details see the @command(TWTidToTiddler)
-" command and @function(tiddlywiki#convertTidToTiddler) function.
+" command and @function(tiddlywiki#convertTidToDivTiddler) function.
 
 " }}}1
 
@@ -335,7 +335,7 @@ function! tiddlywiki#initialiseTiddler()
     call append(5, '')
 endfunction
 
-" tiddlywiki#convertTidToTiddler([field1[, field2[, ...]]])    {{{1
+" tiddlywiki#convertTidToDivTiddler([field1[, field2[, ...]]])    {{{1
 
 ""
 " @public
@@ -367,7 +367,7 @@ endfunction
 " file can have field names prepended to them. This is triggered by passing
 " [field] names to the function as arguments. Consider, for example, the
 " function invocation:>
-" "call tiddlywiki#convertTidToTiddler('title', 'tags')"
+" "call tiddlywiki#convertTidToDivTiddler('title', 'tags')"
 " <This results in "title: " being prepended to the first line in the file and
 " "tags: " being prepended to the second line in the file. If a blank line
 " occurs before the field name arguments are exhausted, remaining field names
@@ -378,7 +378,7 @@ endfunction
 " @throws NoContent if no content/text in tiddler
 " @throws NoFilename if no output filename entered by user
 " @throws WriteFail if error occurs during file write
-function! tiddlywiki#convertTidToTiddler(...)
+function! tiddlywiki#convertTidToDivTiddler(...)
     " define error messages    {{{2
     let l:ERROR_DeleteFail
                 \ = 'ERROR(DeleteFail): Vim reports file deletion failed'
