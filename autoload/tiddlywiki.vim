@@ -452,7 +452,7 @@ function! tiddlywiki#convertTidToTiddler(...)
     if len(l:content) == 0 | throw l:ERROR_NoContent | endif
     let l:content[0] = '<pre>' . l:content[0]
     let l:content[-1] = l:content[-1] . '</pre>'
-    call expand(l:tiddler, l:content)
+    call extend(l:tiddler, l:content)
     call add(l:tiddler, '</div>')
     " get output filename    {{{2
     if empty(bufname('%'))  " no file associated with buffer
