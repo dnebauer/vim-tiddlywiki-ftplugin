@@ -446,20 +446,16 @@ function! tiddlywiki#convertTidToDivTiddler(...)
     " - add created/modified date if absent and creator/modifier set
     if has_key(l:fields, 'creator') && !empty(l:fields.creator)
                 \ && !has_key(l:fields, 'created')
-        try
-            let l:fields.creator = s:tw_time()
-        catch
-            call s:error(s:exception_error(v:exception))
-            throw 'ERROR(NoCreated): Unable to set created date'
+        try   | let l:fields.created = s:tw_time()
+        catch | call s:error(s:exception_error(v:exception))
+                throw 'ERROR(NoCreated): Unable to set created date'
         endtry
     endif
     if has_key(l:fields, 'modifier') && !empty(l:fields.modifier)
                 \ && !has_key(l:fields, 'modified')
-        try
-            let l:fields.modifier = s:tw_time()
-        catch
-            call s:error(s:exception_error(v:exception))
-            throw 'ERROR(NoModified): Unable to set modified date'
+        try   | let l:fields.modified = s:tw_time()
+        catch | call s:error(s:exception_error(v:exception))
+                throw 'ERROR(NoModified): Unable to set modified date'
         endtry
     endif
     " - build attributes string and add to div element
