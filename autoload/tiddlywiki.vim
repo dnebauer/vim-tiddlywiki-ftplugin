@@ -359,10 +359,10 @@ endfunction
 " Default tag names set using the @setting(g:default_tiddler_tags) setting are
 " added to any tag names defined in tiddler metadata. A default creator name
 " can be set using @setting(g:default_tiddler_creator), but this is overridden
-" by a creator set in tiddler metadata. If, for some reason, there the same
-" field is defined multiple times in metadata, the following occurs: * for the
-" "tags" field, all field valules are concatenated * for other fields, the
-" last field value overrides all others.
+" by a creator set in tiddler metadata. If, for some reason, the same field is
+" defined multiple times in metadata, the following occurs:
+" * for the "tags" field, all field values are concatenated
+" * for other fields, the last field value overrides all others.
 "
 " There is an optional pre-processing step in which lines at the top of the
 " file can have field names prepended to them. This is triggered by passing
