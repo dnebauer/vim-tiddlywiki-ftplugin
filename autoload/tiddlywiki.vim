@@ -649,7 +649,7 @@ function! tiddlywiki#tiddlify(...)
         let l:boundary_index += 1
     endfor
     if l:boundary_index >= len(l:tid) | throw l:ERROR_NoBoundary | endif
-    let l:metadata_end = l:boundary_index - 1
+    let l:metadata_end = l:boundary_index
     " prepare variables used in metadata processing    {{{2
     let l:fields = {}
     if exists('g:default_tiddler_tags') && !empty(g:default_tiddler_tags)
