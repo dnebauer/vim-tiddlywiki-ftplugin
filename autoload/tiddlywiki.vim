@@ -660,7 +660,8 @@ function! tiddlywiki#tiddlify(...)
     endif
     " process existing tiddler metadata    {{{2
     " - fills 'l:fields' dict with field names and values
-    for l:line in l:tid[0 : l:metadata_end]
+    let l:list_metadata_end = l:metadata_end
+    for l:line in l:tid[0 : l:list_metadata_end]
         let l:field_name = split(l:line, ':')[0]
         let l:match_expr = l:field_name . ':\s*'
         let l:value_start = matchend(l:line, l:match_expr)
