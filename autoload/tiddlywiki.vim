@@ -75,6 +75,67 @@ function! s:confirm(question) abort
     return (l:char ==? 'y')
 endfunction
 
+" s:error(message)    {{{1
+
+""
+" @private
+" Display error {message}. A |String| {message} is converted to a
+" single-element |List|. Any other type of non-|List| value is stringified by
+" @function(s:stringify) and converted to a single-element |List|. If a |List|
+" is provided, all elements of the |List| are stringified by
+" @function(s:stringify). Once a final |List| has been generated, all elements
+" are displayed sequentially using |echomsg|, to ensure they are saved in the
+" |message-history|, using error highlighting (see |hl-ErrorMsg|).
+function! s:error(message) abort
+    " require double quoting of execution string so backslash
+    " is interpreted as an escape token
+    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
+    echohl ErrorMsg
+    for l:message in s:listifyMsg(a:message) | echomsg l:message | endfor
+    echohl Normal
+endfunction
+
+" s:exception_error(exception)    {{{1
+
+""
+" @private
+" Extracts and returns the error message from a Vim exception. Any other
+" exception is returned unaltered.
+"
+" This is useful because vim will not allow Vim errors to be re-thrown. If all
+" errors are processed by this function before re-throwing them, there is no
+" chance of the re-throw causing this failure.
+"
+" It also makes the errors a little more easy to read since the Vim context is
+" removed. (This context provides little troubleshooting assistance in simple
+" scripts.) For that reason this function may usefully be used in processing
+" all exceptions before operating on them.
+function! s:exception_error(exception) abort
+    let l:matches = matchlist(a:exception, '^Vim\%((\a\+)\)\=:\(E\d\+\p\+$\)')
+    return (!empty(l:matches) && !empty(l:matches[1])) ? l:matches[1]
+                \                                      : a:exception
+endfunction
+
+" s:listifyMsg(var)    {{{1
+
+""
+" @private
+" Convert variable {var} into a |List|. If a List is provided then all list
+" items are converted to strings. If a non-List variable is provided it is
+" converted to a string and then made into a single-item List. All string
+" conversion is done by @function(s:stringify).
+function! s:listifyMsg(var) abort
+    let l:items = []
+    if type(a:var) == type([])
+        for l:var in a:var
+            call add(l:items, s:stringify(l:var))
+        endfor
+    else
+        call add(l:items, s:stringify(a:var))
+    endif
+    return l:items
+endfunction
+
 " s:stringify(variable[, quote])    {{{1
 
 ""
@@ -141,83 +202,89 @@ function! s:stringify(variable, ...) abort
     endif
 endfunction
 
-" s:exception_error(exception)    {{{1
+" s:title_capitalise(string)    {{{1
 
 ""
 " @private
-" Extracts and returns the error message from a Vim exception. Any other
-" exception is returned unaltered.
+" Change text {string} to use title capitalisation. In this style of
+" capitalisation, first and last words are capitalised, as are all other words
+" except articles, prepositions and conjunctions of fewer than five letters.
 "
-" This is useful because vim will not allow Vim errors to be re-thrown. If all
-" errors are processed by this function before re-throwing them, there is no
-" chance of the re-throw causing this failure.
-"
-" It also makes the errors a little more easy to read since the Vim context is
-" removed. (This context provides little troubleshooting assistance in simple
-" scripts.) For that reason this function may usefully be used in processing
-" all exceptions before operating on them.
-function! s:exception_error(exception) abort
-    let l:matches = matchlist(a:exception, '^Vim\%((\a\+)\)\=:\(E\d\+\p\+$\)')
-    return (!empty(l:matches) && !empty(l:matches[1])) ? l:matches[1]
-                \                                      : a:exception
-endfunction
-
-" s:listifyMsg(var)    {{{1
-
-""
-" @private
-" Convert variable {var} into a |List|. If a List is provided then all list
-" items are converted to strings. If a non-List variable is provided it is
-" converted to a string and then made into a single-item List. All string
-" conversion is done by @function(s:stringify).
-function! s:listifyMsg(var) abort
-    let l:items = []
-    if type(a:var) == type([])
-        for l:var in a:var
-            call add(l:items, s:stringify(l:var))
-        endfor
-    else
-        call add(l:items, s:stringify(a:var))
-    endif
-    return l:items
-endfunction
-
-" s:error(message)    {{{1
-
-""
-" @private
-" Display error {message}. A |String| {message} is converted to a
-" single-element |List|. Any other type of non-|List| value is stringified by
-" @function(s:stringify) and converted to a single-element |List|. If a |List|
-" is provided, all elements of the |List| are stringified by
-" @function(s:stringify). Once a final |List| has been generated, all elements
-" are displayed sequentially using |echomsg|, to ensure they are saved in the
-" |message-history|, using error highlighting (see |hl-ErrorMsg|).
-function! s:error(message) abort
-    " require double quoting of execution string so backslash
-    " is interpreted as an escape token
-    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
-    echohl ErrorMsg
-    for l:message in s:listifyMsg(a:message) | echomsg l:message | endfor
-    echohl Normal
-endfunction
-
-" s:warn(msg)    {{{1
-
-""
-" @private
-" Display warning {message}. A |String| {message} is converted to a
-" single-element |List|. Any other type of non-|List| value is stringified by
-" @function(s:stringify) and converted to a single-element |List|. If a |List|
-" is provided, all elements of the |List| are stringified by
-" @function(s:stringify). Once a final |List| has been generated, all elements
-" are displayed sequentially using |echomsg|, to ensure they are saved in the
-" |message-history|, using error highlighting (see |hl-ErrorMsg|).
-function! s:warn(msg) abort
-    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
-    echohl WarningMsg
-    for l:msg in s:listifyMsg(a:msg) | echomsg l:msg | endfor
-    echohl Normal
+" The converted text string is returned.
+function! s:title_capitalise(string) abort
+try
+    " variables
+    " - articles of speech are not capitalised in title case
+    let l:articles = ['a', 'an', 'the']
+    " - prepositions are not capitalised in title case
+    let l:prepositions = [
+                \ 'amid', 'as',   'at',   'atop', 'but',  'by',   'for',
+                \ 'from', 'in',   'into', 'mid',  'near', 'next', 'of',
+                \ 'off',  'on',   'onto', 'out',  'over', 'per',  'quo',
+                \ 'sans', 'than', 'till', 'to',   'up',   'upon', 'v',
+                \ 'vs',   'via',  'with'
+                \ ]
+    " - conjunctions are not capitalised in title case
+    let l:conjunctions = [
+                \  'and', 'as',   'both', 'but', 'for', 'how',  'if',
+                \ 'lest', 'nor',  'once',  'or',  'so', 'than', 'that',
+                \ 'till', 'when', 'yet'
+                \ ]
+    let l:temp = l:articles + l:prepositions + l:conjunctions
+    " - merge all words not capitalised in title case
+    " - weed out duplicates for aesthetic reasons
+    let l:title_lowercase = []
+    for l:item in l:temp
+        if count(l:title_lowercase, l:item) == 0
+            call add(l:title_lowercase, l:item)
+        endif
+    endfor
+    " - splitting of header on word boundaries produces some pseudo-words that
+    "   are not actual words, and these should not be capitalised in 'start'
+    "   or 'title' case
+    let l:pseudowords = ['s']
+    unlet l:temp l:articles l:prepositions l:conjunctions l:item
+    " check parameters
+    if a:string ==? '' | return '' | endif
+    " break up string into word fragments
+    let l:words = split(a:string, '\<\|\>')
+    " process words individually
+    let l:index = 0
+    let l:last_index = len(l:words) - 1
+    let l:first_word = v:true
+    let l:last_word = v:false
+    for l:word in l:words
+        let l:word = tolower(l:word)    " first make all lowercase
+        let l:last_word = (l:index == l:last_index)    " check for last word
+        if l:first_word
+            let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
+        elseif l:last_word
+            " beware some psuedo-words must not be capitalised
+            if !count(l:pseudowords, l:word)
+                let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
+            endif
+        else  " word is not first or last
+            " capitalise if not in list of words to be kept lowercase
+            " and is not a psuedo-word
+            if !count(l:title_lowercase, l:word)
+                        \ && !count(l:pseudowords, l:word)
+                let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
+            endif
+        endif
+        " negate first word flag after first word is encountered
+        if l:first_word && l:word =~# '^\a'
+            let l:first_word = v:false
+        endif
+        " write changed word
+        let l:words[l:index] = l:word
+        " move to next list item
+        let l:index += 1
+    endfor
+    " return altered header
+    return join(l:words, '')
+catch
+    call s:error(v:exception . ' at ' . v:throwpoint)
+endtry
 endfunction
 
 " s:tw_time()    {{{1
@@ -270,71 +337,27 @@ function! s:tw_time()
     let l:tw_time .= '000'
     return l:tw_time
 endfunction
+
+" s:warn(msg)    {{{1
+
+""
+" @private
+" Display warning {message}. A |String| {message} is converted to a
+" single-element |List|. Any other type of non-|List| value is stringified by
+" @function(s:stringify) and converted to a single-element |List|. If a |List|
+" is provided, all elements of the |List| are stringified by
+" @function(s:stringify). Once a final |List| has been generated, all elements
+" are displayed sequentially using |echomsg|, to ensure they are saved in the
+" |message-history|, using error highlighting (see |hl-ErrorMsg|).
+function! s:warn(msg) abort
+    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
+    echohl WarningMsg
+    for l:msg in s:listifyMsg(a:msg) | echomsg l:msg | endfor
+    echohl Normal
+endfunction
 " }}}1
 
 " Public functions
-
-" tiddlywiki#updateModTime()    {{{1
-
-""
-" @public
-" Updates the "modified" metadata field with the current time.
-" @throws NoModified if unable to locate "modified" metadata field
-" @throws CantModify if unable to modify "modified" metadata field
-" @throws CantSetPos if unable to restore original cursor position
-" @throws NoDate if unable to obtain system date
-function! tiddlywiki#updateModTime()
-    " remember where we parked...
-    let l:save_cursor = getcurpos()
-    " move to 'modified' metadata field
-    let l:line = search('^\s*modified:\s', 'w')
-    if l:line == 0
-        call s:warn('Cannot locate "modified" metadata field')
-        throw 'ERROR(NoModified): Unable to locate "modified" metadata field'
-    endif
-    " replace line
-    try
-        let l:tw_time = s:tw_time()
-    catch
-        call s:error(s:exception_error(v:exception))
-        throw 'ERROR(NoDate): Unable to obtain system date'
-    endtry
-    let l:new_mod = 'modified: ' . s:tw_time()
-    let l:retval = setline(l:line, l:new_mod)
-    if l:retval == 1
-        call s:warn('Unable to modify "modified" metadata field')
-        throw 'ERROR(CantModify): Unable to modify "modified" metadata field'
-    endif
-    " return to original location
-    let l:retval = setpos('.', l:save_cursor)
-    if l:retval == -1
-        call s:warn('Unable to restore original cursor position')
-        throw 'ERROR(CantSetPos): Unable to restore original cursor position'
-    endif
-endfunction
-
-" tiddlywiki#initialiseTiddler()    {{{1
-
-""
-" @public
-" Insert metadata fields at start of file. More specifically, the following
-" metadata fields are inserted:
-" * "created: <TIME>"
-" * "modified: <TIME>"
-" * "tags: "
-" * "title: "
-" * "type: text/vnd.tiddlywiki"
-" followed by an empty line. "<TIME>" is the current time in tiddlywiki
-" format.
-function! tiddlywiki#initialiseTiddler()
-    let l:tw_time = s:tw_time()
-    call append(0, 'created: ' . l:tw_time)
-    call append(1, 'modified: ' . l:tw_time)
-    call append(2, 'tags: ')
-    call append(3, 'title: ')
-    call append(4, 'type: text/vnd.tiddlywiki')
-    call append(5, '')
-endfunction
 
 " tiddlywiki#convertTidToDivTiddler([field1[, field2[, ...]]])    {{{1
 
@@ -536,6 +559,186 @@ function! tiddlywiki#convertTidToDivTiddler(...)
     try   | execute 'edit!' l:tiddler_fname
     catch | throw 'ERROR(CantEdit): ' . s:exception_error(v:exception)
     endtry    " }}}2
+endfunction
+
+" tiddlywiki#initialiseTiddler()    {{{1
+
+""
+" @public
+" Insert metadata fields at start of file. More specifically, the following
+" metadata fields are inserted:
+" * "created: <TIME>"
+" * "modified: <TIME>"
+" * "tags: "
+" * "title: "
+" * "type: text/vnd.tiddlywiki"
+" followed by an empty line. "<TIME>" is the current time in tiddlywiki
+" format.
+function! tiddlywiki#initialiseTiddler()
+    let l:tw_time = s:tw_time()
+    call append(0, 'created: ' . l:tw_time)
+    call append(1, 'modified: ' . l:tw_time)
+    call append(2, 'tags: ')
+    call append(3, 'title: ')
+    call append(4, 'type: text/vnd.tiddlywiki')
+    call append(5, '')
+endfunction
+
+" tiddlywiki#tiddlify([field1[, field2[, ...]]])    {{{1
+
+""
+" @public
+" Converts the contents of the current buffer to a basic tiddler. The first
+" cluster of lines (up to the first empty line) are assumed to be metadata
+" lines.
+"
+" Each metadata lines looks like "field: description". The content of the tags
+" field is space-separated tag names; tag names containing spaces should be
+" enclosed by doubled square brackets, e.g., "[[tag name]]".  Default tag
+" names set using the @setting(g:default_tiddler_tags) setting are added to
+" any tag names defined in tiddler metadata. A default creator name can be set
+" using @setting(g:default_tiddler_creator), but this is overridden by a
+" creator set in tiddler metadata. If, for some reason, the same field is
+" defined multiple times in metadata, the following occurs:
+" * for the "tags" field, all field values are concatenated
+" * for other fields, the last field value overrides all others.
+"
+" There is an optional pre-processing step in which lines at the top of the
+" file can have field names prepended to them. This is triggered by passing
+" [field] names to the function as arguments. Consider, for example, the
+" function invocation:
+" >
+"     call tiddlywiki#tiddlify('title', 'tags')
+" <
+" This results in "title: " being prepended to the first line in the file and
+" "tags: " being prepended to the second line in the file. If a blank line
+" occurs before the field name arguments are exhausted, remaining field names
+" are ignored.
+" @throws NoCreated if unable to set created date
+" @throws NoBoundary if no metadata/content boundary located
+" @throws NoModified if unable to set modified date
+function! tiddlywiki#tiddlify(...)
+    " define error messages    {{{2
+    let l:ERROR_NoBoundary
+                \ = 'ERROR(NoBoundary): No metadata/content boundary located'
+    " slurp buffer content into list    {{{2
+    let l:tid = getline(1, '$')
+    " remove leading empty rows
+    let l:leading_blanks = -1
+    for l:line in l:tid
+        if   l:line =~# '^\s*$' | let l:leading_blanks +=1
+        else                    | break
+        endif
+    endfor
+    if l:leading_blanks >=0
+        call remove(l:tid, 0, l:leading_blanks)
+    endif
+    " add field names to metadata (optional)    {{{2
+    let l:tid_index = 0
+    for l:field in a:000
+        let l:line = get(l:tid, l:tid_index, '')
+        if empty(l:line) | break | endif |  " ran out of tiddler lines
+        let l:line = l:field . ': ' . l:line
+        let l:tid[l:tid_index] = l:line
+        let l:tid_index += 1
+    endfor
+    " locate metadata boundary    {{{2
+    let l:boundary_index = 0
+    for l:line in l:tid
+        if l:line =~# '^\s*$' | break | endif
+        let l:boundary_index += 1
+    endfor
+    if l:boundary_index >= len(l:tid) | throw l:ERROR_NoBoundary | endif
+    let l:metadata_end = l:boundary_index - 1
+    " prepare variables used in metadata processing    {{{2
+    let l:fields = {}
+    if exists('g:default_tiddler_tags') && !empty(g:default_tiddler_tags)
+        let l:fields['tags'] = g:default_tiddler_tags
+    endif
+    if exists('g:default_tiddler_creator') && !empty(g:default_tiddler_creator)
+        let l:fields['creator'] = g:default_tiddler_creator
+    endif
+    " process existing tiddler metadata    {{{2
+    " - fills 'l:fields' dict with field names and values
+    for l:line in l:tid[0 : l:metadata_end]
+        let l:field_name = split(l:line, ':')[0]
+        let l:match_expr = l:field_name . ':\s*'
+        let l:value_start = matchend(l:line, l:match_expr)
+        let l:field_value = strpart(l:line, l:value_start)
+        " 'title' and 'tags' fields are handled as special cases
+        if     l:field_name =~# '^tags$'
+            let l:fields['tags'] .=  ' ' . l:field_value
+        elseif l:field_name =~# '^title$'
+            let l:fields['title'] = s:title_capitalise(l:field_value)
+        else
+            let l:fields[l:field_name] = l:field_value
+        endif
+    endfor
+    " add metadata fields in some conditions    {{{2
+    " - add created/modified date if absent and creator/modifier set
+    if has_key(l:fields, 'creator') && !empty(l:fields.creator)
+                \ && !has_key(l:fields, 'created')
+        try   | let l:fields.created = s:tw_time()
+        catch | call s:error(s:exception_error(v:exception))
+                throw 'ERROR(NoCreated): Unable to set created date'
+        endtry
+    endif
+    if has_key(l:fields, 'modifier') && !empty(l:fields.modifier)
+                \ && !has_key(l:fields, 'modified')
+        try   | let l:fields.modified = s:tw_time()
+        catch | call s:error(s:exception_error(v:exception))
+                throw 'ERROR(NoModified): Unable to set modified date'
+        endtry
+    endif
+    " write metadata to buffer    {{{2
+    " - convert fields dict to metadata lines ready for insertion
+    let l:metadata = []
+    for [l:key, l:value] in items(l:fields)
+        call add(l:metadata, l:key . ': ' . l:value)
+    endfor
+    " - delete existing metadata lines
+    execute '1,' . l:metadata_end . 'delete _'
+    " - insert replacement lines
+    call append(0, l:metadata)    " }}}2
+endfunction
+
+" tiddlywiki#updateModTime()    {{{1
+
+""
+" @public
+" Updates the "modified" metadata field with the current time.
+" @throws NoModified if unable to locate "modified" metadata field
+" @throws CantModify if unable to modify "modified" metadata field
+" @throws CantSetPos if unable to restore original cursor position
+" @throws NoDate if unable to obtain system date
+function! tiddlywiki#updateModTime()
+    " remember where we parked...
+    let l:save_cursor = getcurpos()
+    " move to 'modified' metadata field
+    let l:line = search('^\s*modified:\s', 'w')
+    if l:line == 0
+        call s:warn('Cannot locate "modified" metadata field')
+        throw 'ERROR(NoModified): Unable to locate "modified" metadata field'
+    endif
+    " replace line
+    try
+        let l:tw_time = s:tw_time()
+    catch
+        call s:error(s:exception_error(v:exception))
+        throw 'ERROR(NoDate): Unable to obtain system date'
+    endtry
+    let l:new_mod = 'modified: ' . s:tw_time()
+    let l:retval = setline(l:line, l:new_mod)
+    if l:retval == 1
+        call s:warn('Unable to modify "modified" metadata field')
+        throw 'ERROR(CantModify): Unable to modify "modified" metadata field'
+    endif
+    " return to original location
+    let l:retval = setpos('.', l:save_cursor)
+    if l:retval == -1
+        call s:warn('Unable to restore original cursor position')
+        throw 'ERROR(CantSetPos): Unable to restore original cursor position'
+    endif
 endfunction
 " }}}1
 

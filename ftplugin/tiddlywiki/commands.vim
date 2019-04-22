@@ -12,16 +12,7 @@ set cpoptions&vim
 
 " Commands
 
-" TWInitialiseTiddler      - insert tiddler metadata fields    {{{1
-
-""
-" Calls @function(tiddlywiki#initialiseTiddler) to insert metadata fields
-" "created", "modified", "tags", "title" and "type" at the head of the file.
-command -buffer TWInitialiseTiddler call tiddlywiki#initialiseTiddler()
-
-" TWConvertTidToDivTiddler - convert tid style file to tiddler    {{{1
-
-" s:completeTiddlerField(arg, line, pos)    {{{2
+" s:completeTiddlerField(arg, line, pos)    {{{1
 
 ""
 " @private
@@ -53,7 +44,9 @@ function! s:completeTiddlerField(arg, line, pos)
     " return possible matches among remaining args
     return filter(l:args, {idx, val -> val =~ a:arg})
 endfunction
-" }}}2
+" }}}1
+
+" TWConvertTidToDivTiddler - convert tid-style file to tiddler    {{{1
 
 ""
 " Calls @function(tiddlywiki#convertTidToDivTiddler) to convert a "tid" style
@@ -62,6 +55,21 @@ endfunction
 command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
             \ TWConvertTidToDivTiddler
             \ call tiddlywiki#convertTidToDivTiddler(<f-args>)
+
+" TWInitialiseTiddler      - insert tiddler metadata fields    {{{1
+
+""
+" Calls @function(tiddlywiki#initialiseTiddler) to insert metadata fields
+" "created", "modified", "tags", "title" and "type" at the head of the file.
+command -buffer TWInitialiseTiddler call tiddlywiki#initialiseTiddler()
+
+" TWTiddlify               - convert to tid-style file    {{{1
+
+""
+" Calls @function(tiddlywiki#tiddlify) to convert a file to a "tid" tiddler
+" file. Accepts optional metadata [field] names as arguments.
+command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
+            \ TWTiddlify call tiddlywiki#tiddlify(<f-args>)
 
 " TWUpdateModificationTime - update modification timestamp    {{{1
 
