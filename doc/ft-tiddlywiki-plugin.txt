@@ -74,6 +74,11 @@ COMMANDS                                       *ft-tiddlywiki-plugin-commands*
   Calls |tiddlywiki#tiddlify()| to convert a file to a "tid" tiddler file.
   Accepts optional metadata [field] names as arguments.
 
+:[N]TWUniquifyDataTiddler                             *:TWUniquifyDataTiddler*
+  Calls |tiddlywiki#uniquefyDataTiddler()| to add a unique numeric prefix to
+  each line (row) of a dictionary data tiddler. Each line gets the prefix
+  "X: " where "X" is an incrementing integer starting at 1 on the first line.
+
 :[N]TWUpdateModificationTime                       *:TWUpdateModificationTime*
   Calls |tiddlywiki#updateModTime()| to update the timestamp in the "modified"
   metadata field.
@@ -219,6 +224,23 @@ tiddlywiki#tiddlify([field])                           *tiddlywiki#tiddlify()*
   Throws ERROR(NoCreated) if unable to set created date
   Throws ERROR(NoBoundary) if no metadata/content boundary located
   Throws ERROR(NoModified) if unable to set modified date
+
+tiddlywiki#uniquefyDataTiddler()            *tiddlywiki#uniquefyDataTiddler()*
+  Adds a unique numeric prefix to rows in a dictionary data tiddler. More
+  specifically, it adds "X: " to the beginning of each row where "X" is an
+  incrementing integer starting at 1 on the first line.
+
+  Executes the following vimscript commands:
+>
+    execute 'let n=[0]'
+    execute "%s/^/\\=map(n, 'v:val+1')[0] . ': '/"
+<
+  which are the equivalent of the following command executed in
+  |Cmdline-mode|:
+>
+    let n=[0] | %s/^/\=map(n, 'v:val+1')[0] . ': '/
+<
+  Throws ERROR(CantUniquify) if unable to complete prefix insertion
 
 tiddlywiki#updateModTime()                        *tiddlywiki#updateModTime()*
   Updates the "modified" metadata field with the current time.

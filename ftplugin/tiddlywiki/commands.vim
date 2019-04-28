@@ -71,6 +71,16 @@ command -buffer TWInitialiseTiddler call tiddlywiki#initialiseTiddler()
 command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
             \ TWTiddlify call tiddlywiki#tiddlify(<f-args>)
 
+" TWUniquifyDataTiddler    - add unique numeric prefixes    {{{1
+
+""
+" Calls @function(tiddlywiki#uniquefyDataTiddler) to add a unique numeric
+" prefix to each line (row) of a dictionary data tiddler. Each line gets the
+" prefix "X: " where "X" is an incrementing integer starting at 1 on the first
+" line.
+command -buffer -nargs=0 TWUniquifyDataTiddler
+            \ call tiddlywiki#uniquefyDataTiddler()
+
 " TWUpdateModificationTime - update modification timestamp    {{{1
 
 ""

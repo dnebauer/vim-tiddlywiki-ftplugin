@@ -703,6 +703,40 @@ function! tiddlywiki#tiddlify(...)
     call append(0, l:metadata)    " }}}2
 endfunction
 
+" tiddlywiki#uniquefyDataTiddler()    {{{1
+
+""
+" @public
+" Adds a unique numeric prefix to rows in a dictionary data tiddler. More
+" specifically, it adds "X: " to the beginning of each row where "X" is an
+" incrementing integer starting at 1 on the first line.
+"
+" Executes the following vimscript commands:
+" >
+"   execute 'let n=[0]'
+"   execute "%s/^/\\=map(n, 'v:val+1')[0] . ': '/"
+" <
+" which are the equivalent of the following command executed in
+" |Cmdline-mode|:
+" >
+"   let n=[0] | %s/^/\=map(n, 'v:val+1')[0] . ': '/
+" <
+" @throws CantUniquify if unable to complete prefix insertion
+function! tiddlywiki#uniquefyDataTiddler()
+    " define error messages
+    let l:ERROR_CantUniquify
+                \ = 'ERROR(CantUniquify): Unable to complete '
+                \ . 'insertion of prefixes'
+    " insert prefixes
+    try
+        execute 'let n=[0]'
+        execute "%s/^/\\=map(n, 'v:val+1')[0] . ': '/"
+    catch
+        call s:error(s:exception_error(v:exception))
+        throw l:ERROR_CantUniquify
+    endtry
+endfunction
+
 " tiddlywiki#updateModTime()    {{{1
 
 ""
