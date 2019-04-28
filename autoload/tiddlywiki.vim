@@ -729,8 +729,8 @@ function! tiddlywiki#uniquefyDataTiddler()
                 \ . 'insertion of prefixes'
     " insert prefixes
     try
-        execute 'let n=[0]'
-        execute "%s/^/\\=map(n, 'v:val+1')[0] . ': '/"
+        silent execute 'let n=[0]'
+        silent execute "%s/^/\\=map(n, 'v:val+1')[0] . ': '/"
     catch
         call s:error(s:exception_error(v:exception))
         throw l:ERROR_CantUniquify
