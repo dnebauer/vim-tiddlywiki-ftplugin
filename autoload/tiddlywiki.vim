@@ -518,7 +518,7 @@ function! tiddlywiki#addCanonicalUri(...)
         return
     endif
     " now can construct TW relative path to image
-    let l:canonical_uri = l:relative . '/' . l:image_file
+    let l:canonical_uri = l:relative . l:image_file
     " check for existing _canonical_uri metadata line
     let l:cur_pos = getcurpos()  " remember where we parked
     call setpos('.', [1, 1, 0, 1] )  " first row, first col
