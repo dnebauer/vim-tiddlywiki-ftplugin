@@ -442,10 +442,6 @@ endfunction
 " >
 "     _canonical_uri: images/My Image.png
 " <
-" @throws BadDir if user selects an invalid directory
-" @throws BadFile if user selects an invalid filepath
-" @throws NoDir if user did not select a directory
-" @throws NoFile if user did not select a file
 function! tiddlywiki#addCanonicalUri()
     " need wiki root directory
     let l:prompt = 'Select wiki root directory'
