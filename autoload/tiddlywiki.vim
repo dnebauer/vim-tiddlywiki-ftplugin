@@ -511,7 +511,7 @@ function! tiddlywiki#addCanonicalUri(...)
     catch | call s:error(s:exception_error(v:exception)) | return
     endtry
     " check that image file is from images directory
-    let l:image_dir = fnamemodify(l:image_fp, ':p:h')
+    let l:image_dir = s:canonicalise(fnamemodify(l:image_fp, ':p:h'))
     let l:image_file = fnamemodify(l:image_fp, ':p:t')
     if l:image_dir !=# l:images_dir
         call s:error('Image is not from the specified images directory')
