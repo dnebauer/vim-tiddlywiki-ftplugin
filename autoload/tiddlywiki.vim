@@ -143,8 +143,8 @@ endfunction
 " User selects a directory or, more accurately, a directory path. An {initial}
 " directory in which to browse can be provided, as can a user {prompt}.
 " @default prompt=Select directory
-" @throws NoDir if user did not select a directory
 " @throws BadDir if user selects an invalid directory
+" @throws NoDir if user did not select a directory
 function! s:select_dir(initial, prompt)
     " set values
     let l:initial = ''
@@ -175,8 +175,8 @@ endfunction
 " User selects a file or, more accurately, a filepath. An {initial} directory
 " in which tp browse can be provided, as can a user {prompt}.
 " @default prompt=Select file
-" @throws NoFile if user did not select a file
 " @throws BadFile if user selects an invalid filepath
+" @throws NoFile if user did not select a file
 function! s:select_file(initial, prompt)
     " set values
     let l:initial = ''
@@ -442,6 +442,10 @@ endfunction
 " >
 "     _canonical_uri: images/My Image.png
 " <
+" @throws BadDir if user selects an invalid directory
+" @throws BadFile if user selects an invalid filepath
+" @throws NoDir if user did not select a directory
+" @throws NoFile if user did not select a file
 function! tiddlywiki#addCanonicalUri()
     " need wiki root directory
     let l:prompt = 'Select wiki root directory'
