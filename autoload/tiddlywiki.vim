@@ -464,7 +464,7 @@ endfunction
 " <
 function! tiddlywiki#addCanonicalUri(...)
     " need wiki root directory (first optional parameter)
-    if a:0 > 0 && a:1
+    if a:0 > 0 && !empty(a:1)
         let l:root_dir = s:canonicalise(a:1)
         if !isdirectory(l:root_dir)
             call s:error('Invalid wiki root directory: ' . a:1)
@@ -477,7 +477,7 @@ function! tiddlywiki#addCanonicalUri(...)
         endtry
     endif
     " need images directory (second optional parameter)
-    if a:0 > 1 && a:2
+    if a:0 > 1 && !empty(a:2)
         let l:images_dir = s:canonicalise(l:root_dir . '/' . a:2)
         if !isdirectory(l:images_dir)
             call s:error('Provided relative images directory: ' . a:2)
