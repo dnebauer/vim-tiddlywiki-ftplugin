@@ -149,7 +149,7 @@ function! s:select_dir(initial, prompt)
     " set values
     let l:initial = ''
     if !empty(a:initial) && isdirectory(a:initial)
-        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p')))
+        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p'))) . '/'
     endif
     let l:prompt = empty(a:prompt) ? 'Select directory' : a:prompt
     let l:ERROR_NoDir = 'ERROR(NoDir): No directory selected'
@@ -182,7 +182,7 @@ function! s:select_file(initial, prompt)
     let l:initial = ''
     if !empty(a:initial)
                 \ && (isdirectory(a:initial) || !empty(glob(a:initial)))
-        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p')))
+        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p'))) . '/'
     endif
     let l:prompt = empty(a:prompt) ? 'Select file' : a:prompt
     let l:ERROR_NoFile = 'ERROR(NoFile): No file selected'
@@ -450,7 +450,7 @@ function! tiddlywiki#addCanonicalUri()
     endtry
     " need images directory
     let l:prompt = 'Select images directory'
-    try   | let l:images_dir = s:select_dir(l:root_dir . '/', l:prompt)
+    try   | let l:images_dir = s:select_dir(l:root_dir, l:prompt)
     catch | call s:error(s:exception_error(v:exception))
     endtry
     " confirm images dir is descendent of wiki root dir
@@ -470,7 +470,7 @@ function! tiddlywiki#addCanonicalUri()
                 \            matchend(l:images_dir, l:root_dir) + 1)
     " select image file
     let l:prompt = 'Select image file'
-    try   | let l:image_fp = s:select_file(l:images_dir . '/', l:prompt)
+    try   | let l:image_fp = s:select_file(l:images_dir, l:prompt)
     catch | call s:error(s:exception_error(v:exception))
     endtry
     " check that image file is from images directory
