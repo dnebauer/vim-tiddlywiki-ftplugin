@@ -503,8 +503,7 @@ function! tiddlywiki#addCanonicalUri(...)
         return
     endif
     " get relative path for images dir
-    let l:relative = strpart(l:images_dir,
-                \            matchend(l:images_dir, l:root_dir) + 1)
+    let l:relative = strpart(l:images_dir, matchend(l:images_dir, l:root_dir))
     " select image file
     let l:prompt = 'Select image file'
     try   | let l:image_fp = s:select_file(l:images_dir, l:prompt)
