@@ -495,7 +495,7 @@ function! tiddlywiki#addCanonicalUri(...)
         call s:error("Can't use wiki root directory as images directory")
         return
     endif
-    let l:matchpos = match(l:root_dir, l:images_dir)
+    let l:matchpos = match(l:images_dir, l:root_dir)
     if l:matchpos == -1
         echo 'Wiki root: ' . l:root_dir
         echo 'Image dir: ' . l:images_dir
