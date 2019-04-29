@@ -135,18 +135,25 @@ autocmd group (see |autocmd-groups|) and can be viewed (see |autocmd-list|).
 ==============================================================================
 FUNCTIONS                                     *ft-tiddlywiki-plugin-functions*
 
-tiddlywiki#addCanonicalUri()                    *tiddlywiki#addCanonicalUri()*
+tiddlywiki#addCanonicalUri([root], [images])    *tiddlywiki#addCanonicalUri()*
   Adds or replaces the metadata line in which the "_canonical_uri" field is
   defined. This field is used when images are stored in a subdirectory of the
   wiki root directory, traditionally "wikiroot/images", and external image
   tiddlers are used to refer to them.
 
-  The user selects the wiki root directory and images directory, and then
-  selects an image file from the images directory. Then a metadata line for
-  the canonical uri is inserted at the top of the file, or overwrites an
-  existing canonical uri.
+  The user can provide the wiki [root] directory and [images] directory, or
+  select them manually. The images directory has to be located under the wiki
+  root directory, and if specified as a parameter only the portion relative to
+  the wiki root directory is given. For example, if the wiki root directory is
+  "~/wiki" and the full path to the images directory is
+  "~/wiki/output/images", then the images parameter would be given as
+  "output/images".
 
-  An inserted line may look like:
+  The user selects an image file from the images directory and a corresponding
+  metadata line for the canonical uri is inserted at the top of the file, or
+  overwrites an existing canonical uri.
+
+  An inserted metadata field line may look like:
 >
       _canonical_uri: images/My Image.png
 <

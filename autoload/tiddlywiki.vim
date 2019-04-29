@@ -61,6 +61,19 @@ set cpoptions&vim
 
 " Script functions
 
+" s:canonicalise(path)    {{{1
+
+""
+" @private
+" Canonicalise a file or directory {path}. A directory is given a terminal
+" slash.
+function! s:canonicalise(path) abort
+    if empty(a:path) | return '' | endif
+    let l:path = simplify(resolve(fnamemodify(a:path, ':p')))
+    if isdirectory(l:path) | let l:path .= '/' | endif
+    return l:path
+endfunction
+
 " s:confirm(question)    {{{1
 
 ""
@@ -149,7 +162,7 @@ function! s:select_dir(initial, prompt)
     " set values
     let l:initial = ''
     if !empty(a:initial) && isdirectory(a:initial)
-        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p'))) . '/'
+        let l:initial = s:canonicalise(a:initial)
     endif
     let l:prompt = empty(a:prompt) ? 'Select directory' : a:prompt
     let l:ERROR_NoDir = 'ERROR(NoDir): No directory selected'
@@ -165,7 +178,7 @@ function! s:select_dir(initial, prompt)
     " feedback
     if empty(l:dir) | throw l:ERROR_NoDir | endif
     if !isdirectory(l:dir) | throw l:ERROR_BadDir | endif
-    return simplify(resolve(fnamemodify(l:dir, ':p')))
+    return s:canonicalise(l:dir, ':p')
 endfunction
 
 " s:select_file(initial, prompt)    {{{1
@@ -182,7 +195,7 @@ function! s:select_file(initial, prompt)
     let l:initial = ''
     if !empty(a:initial)
                 \ && (isdirectory(a:initial) || !empty(glob(a:initial)))
-        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p'))) . '/'
+        let l:initial = s:canonicalise(a:initial, ':p')
     endif
     let l:prompt = empty(a:prompt) ? 'Select file' : a:prompt
     let l:ERROR_NoFile = 'ERROR(NoFile): No file selected'
@@ -198,7 +211,7 @@ function! s:select_file(initial, prompt)
     " feedback
     if empty(l:file) | throw l:ERROR_NoFile | endif
     if empty(glob(l:file)) | throw l:ERROR_BadFile . ': ' . l:file | endif
-    return simplify(resolve(fnamemodify(l:file, ':p')))
+    return s:canonicalise(l:file, ':p')
 endfunction
 
 " s:stringify(variable[, quote])    {{{1
@@ -424,7 +437,7 @@ endfunction
 
 " Public functions
 
-" tiddlywiki#addCanonicalUri()    {{{1
+" tiddlywiki#addCanonicalUri([root[, images])    {{{1
 
 ""
 " @public
@@ -433,26 +446,50 @@ endfunction
 " the wiki root directory, traditionally "wikiroot/images", and external image
 " tiddlers are used to refer to them.
 "
-" The user selects the wiki root directory and images directory, and then
-" selects an image file from the images directory. Then a metadata line for
-" the canonical uri is inserted at the top of the file, or overwrites an
-" existing canonical uri.
+" The user can provide the wiki [root] directory and [images] directory, or
+" select them manually. The images directory has to be located under the wiki
+" root directory, and if specified as a parameter only the portion relative to
+" the wiki root directory is given. For example, if the wiki root directory is
+" "~/wiki" and the full path to the images directory is
+" "~/wiki/output/images", then the images parameter would be given as
+" "output/images".
 "
-" An inserted line may look like:
+" The user selects an image file from the images directory and a corresponding
+" metadata line for the canonical uri is inserted at the top of the file, or
+" overwrites an existing canonical uri.
+"
+" An inserted metadata field line may look like:
 " >
 "     _canonical_uri: images/My Image.png
 " <
-function! tiddlywiki#addCanonicalUri()
-    " need wiki root directory
-    let l:prompt = 'Select wiki root directory'
-    try   | let l:root_dir = s:select_dir(getcwd(), l:prompt)
-    catch | call s:error(s:exception_error(v:exception)) | return
-    endtry
-    " need images directory
-    let l:prompt = 'Select images directory'
-    try   | let l:images_dir = s:select_dir(l:root_dir, l:prompt)
-    catch | call s:error(s:exception_error(v:exception)) | return
-    endtry
+function! tiddlywiki#addCanonicalUri(...)
+    " need wiki root directory (first optional parameter)
+    if a:0 > 0 && a:1
+        let l:root_dir = s:canonicalise(a:1)
+        if !isdirectory(l:root_dir)
+            call s:error('Invalid wiki root directory: ' . a:1)
+            return
+        endif
+    else
+        let l:prompt = 'Select wiki root directory'
+        try   | let l:root_dir = s:select_dir(getcwd(), l:prompt)
+        catch | call s:error(s:exception_error(v:exception)) | return
+        endtry
+    endif
+    " need images directory (second optional parameter)
+    if a:0 > 1 && a:2
+        let l:images_dir = s:canonicalise(l:root_dir . '/' . a:2)
+        if !isdirectory(l:images_dir)
+            call s:error('Provided relative images directory: ' . a:2)
+            call s:error('Invalid derived images directory: ' . l:images_dir)
+            return
+        endif
+    else
+        let l:prompt = 'Select images directory'
+        try   | let l:images_dir = s:select_dir(l:root_dir, l:prompt)
+        catch | call s:error(s:exception_error(v:exception)) | return
+        endtry
+    endif
     " confirm images dir is descendent of wiki root dir
     if l:root_dir ==# l:images_dir
         call s:error("Can't use wiki root directory as images directory")
