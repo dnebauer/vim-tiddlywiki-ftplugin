@@ -446,12 +446,12 @@ function! tiddlywiki#addCanonicalUri()
     " need wiki root directory
     let l:prompt = 'Select wiki root directory'
     try   | let l:root_dir = s:select_dir(getcwd(), l:prompt)
-    catch | call s:error(s:exception_error(v:exception))
+    catch | call s:error(s:exception_error(v:exception)) | return
     endtry
     " need images directory
     let l:prompt = 'Select images directory'
     try   | let l:images_dir = s:select_dir(l:root_dir, l:prompt)
-    catch | call s:error(s:exception_error(v:exception))
+    catch | call s:error(s:exception_error(v:exception)) | return
     endtry
     " confirm images dir is descendent of wiki root dir
     if l:root_dir ==# l:images_dir
@@ -471,7 +471,7 @@ function! tiddlywiki#addCanonicalUri()
     " select image file
     let l:prompt = 'Select image file'
     try   | let l:image_fp = s:select_file(l:images_dir, l:prompt)
-    catch | call s:error(s:exception_error(v:exception))
+    catch | call s:error(s:exception_error(v:exception)) | return
     endtry
     " check that image file is from images directory
     let l:image_dir = fnamemodify(l:image_fp, ':p:h')
