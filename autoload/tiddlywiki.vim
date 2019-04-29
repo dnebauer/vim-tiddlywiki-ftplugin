@@ -178,7 +178,7 @@ function! s:select_dir(initial, prompt)
     " feedback
     if empty(l:dir) | throw l:ERROR_NoDir | endif
     if !isdirectory(l:dir) | throw l:ERROR_BadDir | endif
-    return s:canonicalise(l:dir, ':p')
+    return s:canonicalise(l:dir)
 endfunction
 
 " s:select_file(initial, prompt)    {{{1
@@ -195,7 +195,7 @@ function! s:select_file(initial, prompt)
     let l:initial = ''
     if !empty(a:initial)
                 \ && (isdirectory(a:initial) || !empty(glob(a:initial)))
-        let l:initial = s:canonicalise(a:initial, ':p')
+        let l:initial = s:canonicalise(a:initial)
     endif
     let l:prompt = empty(a:prompt) ? 'Select file' : a:prompt
     let l:ERROR_NoFile = 'ERROR(NoFile): No file selected'
@@ -211,7 +211,7 @@ function! s:select_file(initial, prompt)
     " feedback
     if empty(l:file) | throw l:ERROR_NoFile | endif
     if empty(glob(l:file)) | throw l:ERROR_BadFile . ': ' . l:file | endif
-    return s:canonicalise(l:file, ':p')
+    return s:canonicalise(l:file)
 endfunction
 
 " s:stringify(variable[, quote])    {{{1
