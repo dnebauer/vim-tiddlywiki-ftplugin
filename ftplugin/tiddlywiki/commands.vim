@@ -46,6 +46,14 @@ function! s:completeTiddlerField(arg, line, pos)
 endfunction
 " }}}1
 
+" TWAddCanonicalUri        - add canonical uri metadata field     {{{1
+
+""
+" Calls @function(tiddlywiki#addCanonicalUri) to select an external image and
+" add a corresponding "_canonical_uri" metadata field to the top of the
+" tiddler (or replace an existing one).
+command -buffer TWAddCanonicalUri call tiddlywiki#addCanonicalUri()
+
 " TWConvertTidToDivTiddler - convert tid-style file to tiddler    {{{1
 
 ""
@@ -78,8 +86,7 @@ command -buffer -nargs=* -complete=customlist,s:completeTiddlerField
 " prefix to each line (row) of a dictionary data tiddler. Each line gets the
 " prefix "X: " where "X" is an incrementing integer starting at 1 on the first
 " line.
-command -buffer -nargs=0 TWUniquifyDataTiddler
-            \ call tiddlywiki#uniquefyDataTiddler()
+command -buffer TWUniquifyDataTiddler call tiddlywiki#uniquefyDataTiddler()
 
 " TWUpdateModificationTime - update modification timestamp    {{{1
 

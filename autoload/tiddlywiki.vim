@@ -136,6 +136,71 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
+" s:select_dir(initial, prompt)    {{{1
+
+""
+" @private
+" User selects a directory or, more accurately, a directory path. An {initial}
+" directory in which to browse can be provided, as can a user {prompt}.
+" @default prompt=Select directory
+" @throws NoDir if user did not select a directory
+" @throws BadDir if user selects an invalid directory
+function! s:select_dir(initial, prompt)
+    " set values
+    let l:initial = ''
+    if !empty(a:initial) && isdirectory(a:initial)
+        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p')))
+    endif
+    let l:prompt = empty(a:prompt) ? 'Select directory' : a:prompt
+    let l:ERROR_NoDir = 'ERROR(NoDir): No directory selected'
+    let l:ERROR_BadDir = 'ERROR(BadDir): Selected directory is invalid'
+    " user selects directory
+    if has('prompt')  " gui available
+        let l:dir = browsedir(l:prompt, l:initial)
+    else  " terminal
+        let l:prompt .= ': '
+        let l:dir = input(l:prompt, l:initial, 'dir')
+    endif
+    echo ' '
+    " feedback
+    if empty(l:dir) | throw l:ERROR_NoDir | endif
+    if !isdirectory(l:dir) | throw l:ERROR_BadDir | endif
+    return simplify(resolve(fnamemodify(l:dir, ':p')))
+endfunction
+
+" s:select_file(initial, prompt)    {{{1
+
+""
+" @private
+" User selects a file or, more accurately, a filepath. An {initial} directory
+" in which tp browse can be provided, as can a user {prompt}.
+" @default prompt=Select file
+" @throws NoFile if user did not select a file
+" @throws BadFile if user selects an invalid filepath
+function! s:select_file(initial, prompt)
+    " set values
+    let l:initial = ''
+    if !empty(a:initial)
+                \ && (isdirectory(a:initial) || !empty(glob(a:initial)))
+        let l:initial = simplify(resolve(fnamemodify(a:initial, ':p')))
+    endif
+    let l:prompt = empty(a:prompt) ? 'Select file' : a:prompt
+    let l:ERROR_NoFile = 'ERROR(NoFile): No file selected'
+    let l:ERROR_BadFile = 'ERROR(BadFile): Invalid filepath: '
+    " user selects file
+    if has('prompt')  " gui available
+        let l:file = browse(0, l:prompt, l:initial, '')
+    else  " terminal
+        let l:prompt .= ': '
+        let l:file = input(l:prompt, l:initial, 'file')
+    endif
+    echo ' '
+    " feedback
+    if empty(l:file) | throw l:ERROR_NoFile | endif
+    if empty(glob(l:file)) | throw l:ERROR_BadFile . ': ' . l:file | endif
+    return simplify(resolve(fnamemodify(l:file, ':p')))
+endfunction
+
 " s:stringify(variable[, quote])    {{{1
 
 ""
@@ -358,6 +423,100 @@ endfunction
 " }}}1
 
 " Public functions
+
+" tiddlywiki#addCanonicalUri()    {{{1
+
+""
+" @public
+" Adds or replaces the metadata line in which the "_canonical_uri" field is
+" defined. This field is used when images are stored in a subdirectory of
+" the wiki root directory, traditionally "wikiroot/images", and external image
+" tiddlers are used to refer to them.
+"
+" The user selects the wiki root directory and images directory, and then
+" selects an image file from the images directory. Then a metadata line for
+" the canonical uri is inserted at the top of the file, or overwrites an
+" existing canonical uri.
+"
+" An inserted line may look like:
+" >
+"     _canonical_uri: images/My Image.png
+" <
+function! tiddlywiki#addCanonicalUri()
+    " need wiki root directory
+    let l:prompt = 'Select wiki root directory'
+    try   | let l:root_dir = s:select_dir(getcwd(), l:prompt)
+    catch | call s:error(s:exception_error(v:exception))
+    endtry
+    " need images directory
+    let l:prompt = 'Select images directory'
+    try   | let l:images_dir = s:select_dir(l:root_dir . '/', l:prompt)
+    catch | call s:error(s:exception_error(v:exception))
+    endtry
+    " confirm images dir is descendent of wiki root dir
+    if l:root_dir ==# l:images_dir
+        call s:error("Can't use wiki root directory as images directory")
+        return
+    endif
+    let l:matchpos = match(l:root_dir, l:images_dir)
+    if l:matchpos != -1
+        echo 'Wiki root: ' . l:root_dir
+        echo 'Image dir: ' . l:images_dir
+        call s:error('Wiki root dir must be in path of images dir')
+        return
+    endif
+    " get relative path for images dir
+    let l:relative = strpart(l:images_dir,
+                \            matchend(l:images_dir, l:root_dir) + 1)
+    " select image file
+    let l:prompt = 'Select image file'
+    try   | let l:image_fp = s:select_file(l:images_dir . '/', l:prompt)
+    catch | call s:error(s:exception_error(v:exception))
+    endtry
+    " check that image file is from images directory
+    let l:image_dir = fnamemodify(l:image_fp, ':p:h')
+    let l:image_file = fnamemodify(l:image_fp, ':p:t')
+    if l:image_dir !=# l:images_dir
+        call s:error('Image is not from the specified images directory')
+        return
+    endif
+    " now can construct TW relative path to image
+    let l:canonical_uri = l:relative . '/' . l:image_file
+    " check for existing _canonical_uri metadata line
+    let l:cur_pos = getcurpos()  " remember where we parked
+    call setpos('.', [1, 1, 0, 1] )  " first row, first col
+    let l:field_line = searchpos('^_canonical_uri: ', 'cnW')[0]
+    call setpos('.', l:cur_pos)  " restore original cursor position
+    " if _canonical_uri field already exists, check if it has a value
+    if l:field_line > 0
+        let l:line = getline(l:field_line)
+        " know line *must* start with '_canonical_uri:'
+        " so look for any content after that point
+        if len(l:line) > 15
+            let l:value = substitute(strpart(l:line, 15), '^ \+', '', '')
+            let l:value = substitute(l:value, ' \+$', '', '')
+            if len(l:value > 0)
+                if l:value ==# l:canonical_uri
+                    call s:warn('This image is already set as canonical uri')
+                    return
+                endif
+                let l:msg = "Overwrite existing canonical uri '"
+                            \ . l:value . "'?"
+                let l:pick = confirm(l:msg, "&Yes\n&No", 2, 'Question')
+                if l:pick != 1
+                    return
+                endif
+            endif
+        endif
+    endif
+    " add or replace _canonical_uri field
+    let l:canonical_uri_line = '_canonical_uri: ' . l:canonical_uri
+    if l:field_line == 0  " create new line
+        call append(0, l:canonical_uri_line)
+    else  " replace line
+        call setline(l:field_line, l:canonical_uri_line)
+    endif
+endfunction
 
 " tiddlywiki#convertTidToDivTiddler([field1[, field2[, ...]]])    {{{1
 

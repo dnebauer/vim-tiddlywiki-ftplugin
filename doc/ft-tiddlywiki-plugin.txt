@@ -61,6 +61,11 @@ discussion of "g:no_plugin_maps" in |ft-tiddlywiki-plugin-mappings|.)
 ==============================================================================
 COMMANDS                                       *ft-tiddlywiki-plugin-commands*
 
+:[N]TWAddCanonicalUri                                     *:TWAddCanonicalUri*
+  Calls |tiddlywiki#addCanonicalUri()| to select an external image and add a
+  corresponding "_canonical_uri" metadata field to the top of the tiddler (or
+  replace an existing one).
+
 :[N]TWConvertTidToDivTiddler [field]               *:TWConvertTidToDivTiddler*
   Calls |tiddlywiki#convertTidToDivTiddler()| to convert a "tid" style file to
   a "div.tiddler" style file and then open it. Accepts optional metadata
@@ -129,6 +134,22 @@ autocmd group (see |autocmd-groups|) and can be viewed (see |autocmd-list|).
 
 ==============================================================================
 FUNCTIONS                                     *ft-tiddlywiki-plugin-functions*
+
+tiddlywiki#addCanonicalUri()                    *tiddlywiki#addCanonicalUri()*
+  Adds or replaces the metadata line in which the "_canonical_uri" field is
+  defined. This field is used when images are stored in a subdirectory of the
+  wiki root directory, traditionally "wikiroot/images", and external image
+  tiddlers are used to refer to them.
+
+  The user selects the wiki root directory and images directory, and then
+  selects an image file from the images directory. Then a metadata line for
+  the canonical uri is inserted at the top of the file, or overwrites an
+  existing canonical uri.
+
+  An inserted line may look like:
+>
+      _canonical_uri: images/My Image.png
+<
 
 tiddlywiki#convertTidToDivTiddler([field])
                                          *tiddlywiki#convertTidToDivTiddler()*
