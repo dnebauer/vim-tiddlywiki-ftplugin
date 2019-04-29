@@ -150,10 +150,6 @@ tiddlywiki#addCanonicalUri()                    *tiddlywiki#addCanonicalUri()*
 >
       _canonical_uri: images/My Image.png
 <
-  Throws ERROR(BadDir) if user selects an invalid directory
-  Throws ERROR(BadFile) if user selects an invalid filepath
-  Throws ERROR(NoDir) if user did not select a directory
-  Throws ERROR(NoFile) if user did not select a file
 
 tiddlywiki#convertTidToDivTiddler([field])
                                          *tiddlywiki#convertTidToDivTiddler()*
