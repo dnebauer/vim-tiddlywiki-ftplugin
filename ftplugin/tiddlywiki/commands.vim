@@ -51,8 +51,20 @@ endfunction
 ""
 " Calls @function(tiddlywiki#addCanonicalUri) to select an external image and
 " add a corresponding "_canonical_uri" metadata field to the top of the
-" tiddler (or replace an existing one).
-command -buffer TWAddCanonicalUri call tiddlywiki#addCanonicalUri()
+" tiddler (or replace an existing one). The wiki [root] directory is provided
+" as an absolute path while the [images] subdirectory is relative to the wiki
+" root directory, under which it must be located. The user is able to manually
+" select either or both directory manually if not specified in the command
+" call.
+"
+" When specifying the directories on the command line the easiest method is to
+" use directory completion to enter the absolute images directory path, and then add
+" spacing just after the wiki root directory. In that way the first argument
+" becomes the wiki root directory and the second argument becomes the images
+" directory path relative to the wiki root directory. Take particular care
+" when the directory paths themselves contain spaces. 
+command -buffer -nargs=* -complete=dir TWAddCanonicalUri
+            \ call tiddlywiki#addCanonicalUri(<f-args>)
 
 " TWConvertTidToDivTiddler - convert tid-style file to tiddler    {{{1
 
