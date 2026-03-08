@@ -1,4 +1,4 @@
-# TiddlyWiki Tiddler Filetype Plugin for Vim #
+# TiddlyWiki Tiddler Filetype Plugin for Vim
 
 This is a fork of Devin Weaver's
 [sukima/vim-tiddlywiki](https://github.com/sukima/vim-tiddlywiki) GitHub
@@ -18,30 +18,30 @@ these files and provides a syntax file for this filetype, as well as some
 useful commands and mappings (see [plugin
 help](doc/ft-tiddlywiki-plugin.txt) for further details).
 
-## Changes from original project ##
+## Changes from original project
 
 For those familiar with Devin Weaver's
 [sukima/vim-tiddlywiki](https://github.com/sukima/vim-tiddlywiki) plugin, in
 this fork internal changes include:
 
-* Moving functions into an autoload library
-* Using the file layout recommended by the
+- Moving functions into an autoload library
+- Using the file layout recommended by the
   [google/vimdoc](https://github.com/google/vimdoc) project
-* Adding more error checking to increase robustness (particularly with
+- Adding more error checking to increase robustness (particularly with
   obtaining the system datetime).
 
 The following changes have been made to the user interface:
 
-* The `<Leader>tt` mapping for initialising tiddler files is now `<Leader>ti`
-* Added commands `TWInitialiseTiddler` and `TWUpdateModificationTime`,
+- The `<Leader>tt` mapping for initialising tiddler files is now `<Leader>ti`
+- Added commands `TWInitialiseTiddler` and `TWUpdateModificationTime`,
   corresponding to the two available mappings
-* Added a documentation/help file
+- Added a documentation/help file
 
-## Installation ##
+## Installation
 
 Follow the installation instructions of your plugin manager.
 
-## License ##
+## License
 
 This fork has inherited the [Apache 2.0
 License](http://www.apache.org/licenses/LICENSE-2.0.txt) from the
